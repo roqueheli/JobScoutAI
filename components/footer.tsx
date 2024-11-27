@@ -10,6 +10,7 @@ import {
   Linkedin,
   Twitter,
 } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -19,8 +20,13 @@ export function Footer() {
         <div className="grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
           <div className="flex flex-col gap-2">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <BriefcaseIcon className="h-6 w-6" />
-              <span>JobBoard</span>
+              <Image
+                src="/jobscout-logo.png"
+                alt="JobScoutAI Logo"
+                width={35}
+                height={35}
+              />
+              <span>JobScoutAI</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Connecting talent with opportunities. Find your next career move

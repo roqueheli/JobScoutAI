@@ -14,7 +14,7 @@ const MOCK_USER = {
   email: "john@example.com",
   image:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
-  role: "company_admin",
+  role: "compay_admin",
   company: {
     name: "TechCorp",
     logo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",
@@ -23,7 +23,7 @@ const MOCK_USER = {
 
 export function Navbar() {
   // This would typically be handled by your auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
