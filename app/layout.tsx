@@ -29,7 +29,7 @@ export default function RootLayout({
         >
           <div className="border w-full border-gray-400 min-h-screen bg-background">
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main className="flex justify-center flex-1">{children}</main>
             <Footer />
             <Toaster />
           </div>
