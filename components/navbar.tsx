@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { BriefcaseIcon } from "lucide-react";
-import { UserMenu } from "./user/user-menu";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import { UserMenu } from "./user/user-menu";
 
 // This would typically come from your auth context/provider
 const MOCK_USER = {
@@ -23,7 +23,12 @@ export function Navbar() {
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <BriefcaseIcon className="h-6 w-6" />
+        <Image
+            src="/jobscout-logo.png"
+            alt="JobScoutAI Logo" 
+            width={32}
+            height={32}
+          />
           <span>JobScoutAI</span>
         </Link>
 
