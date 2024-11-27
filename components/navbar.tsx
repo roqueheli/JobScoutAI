@@ -1,10 +1,11 @@
 "use client";
 
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useState } from "react";
+import Image from "next/image";
+import { CompanyAdminMenu } from "./admin/company-admin-menu";
 import { UserMenu } from "./user/user-menu";
 
 // This would typically come from your auth context/provider
@@ -13,6 +14,11 @@ const MOCK_USER = {
   email: "john@example.com",
   image:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
+  role: "company_admin",
+  company: {
+    name: "TechCorp",
+    logo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",
+  },
 };
 
 export function Navbar() {
@@ -23,11 +29,11 @@ export function Navbar() {
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-        <Image
+          <Image
             src="/jobscout-logo.png"
-            alt="JobScoutAI Logo" 
-            width={32}
-            height={32}
+            alt="JobScoutAI Logo"
+            width={35}
+            height={35}
           />
           <span>JobScoutAI</span>
         </Link>
@@ -47,14 +53,30 @@ export function Navbar() {
         <div className="flex flex-1 items-center justify-end gap-4">
           <ThemeToggle />
           {isAuthenticated ? (
-            <UserMenu isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} user={MOCK_USER} />
+            MOCK_USER.role === "company_admin" ? (
+              <>
+                <CompanyAdminMenu
+                  isAuthenticated={isAuthenticated}
+                  setIsAuthenticated={setIsAuthenticated}
+                  user={MOCK_USER}
+                />
+                <Button asChild>
+                  {isAuthenticated && MOCK_USER.role === "company_admin" && (
+                    <Link href="/post-job">Post a Job</Link>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <UserMenu
+                isAuthenticated={isAuthenticated}
+                setIsAuthenticated={setIsAuthenticated}
+                user={MOCK_USER}
+              />
+            )
           ) : (
             <>
               <Button variant="ghost" asChild>
                 <Link href="/auth/login">Sign in</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/auth/register">Post a Job</Link>
               </Button>
             </>
           )}
