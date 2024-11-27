@@ -15,6 +15,8 @@ import Link from "next/link";
 import { User, Settings, Briefcase, FileText, LogOut } from "lucide-react";
 
 interface UserMenuProps {
+  isAuthenticated: boolean;
+  setIsAuthenticated: (value: boolean) => void;
   user: {
     name: string;
     email: string;
@@ -22,7 +24,7 @@ interface UserMenuProps {
   };
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ isAuthenticated, setIsAuthenticated, user }: UserMenuProps) {  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -74,7 +76,7 @@ export function UserMenu({ user }: UserMenuProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem onClick={() => setIsAuthenticated(!isAuthenticated)} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

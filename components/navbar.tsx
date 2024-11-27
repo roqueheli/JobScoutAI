@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BriefcaseIcon } from "lucide-react";
 import { UserMenu } from "./user/user-menu";
+import { useState } from "react";
 
 // This would typically come from your auth context/provider
 const MOCK_USER = {
@@ -16,14 +17,14 @@ const MOCK_USER = {
 
 export function Navbar() {
   // This would typically be handled by your auth state
-  const isAuthenticated = true;
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   return (
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <BriefcaseIcon className="h-6 w-6" />
-          <span>JobBoard</span>
+          <span>JobScoutAI</span>
         </Link>
 
         <nav className="flex items-center gap-6 mx-6">
@@ -41,7 +42,7 @@ export function Navbar() {
         <div className="flex flex-1 items-center justify-end gap-4">
           <ThemeToggle />
           {isAuthenticated ? (
-            <UserMenu user={MOCK_USER} />
+            <UserMenu isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} user={MOCK_USER} />
           ) : (
             <>
               <Button variant="ghost" asChild>
