@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { AuthContext } from "@/context/auth/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -26,6 +28,8 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -39,13 +43,14 @@ export default function LoginPage() {
 
   async function onSubmit(data: LoginValues) {
     setIsLoading(true);
+    setIsAuthenticated(true);
     try {
       // Here you would typically make an API call to your authentication endpoint
-      console.log(data);
       toast({
         title: "Success",
         description: "You have successfully logged in.",
       });
+      router.push("/");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -62,7 +67,8 @@ export default function LoginPage() {
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
-          <Image className="mr-2"
+          <Image
+            className="mr-2"
             src="/jobscout-logo.png"
             alt="JobScoutAI Logo"
             width={35}

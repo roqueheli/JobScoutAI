@@ -76,7 +76,7 @@ export function UserMenu({ isAuthenticated, setIsAuthenticated, user }: UserMenu
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setIsAuthenticated(!isAuthenticated)} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => setIsAuthenticated(false)} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

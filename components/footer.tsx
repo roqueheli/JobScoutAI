@@ -197,7 +197,7 @@ export function Footer() {
             </Link>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} JobBoard. All rights reserved.
+            © {new Date().getFullYear()} JobScoutAI. All rights reserved.
           </p>
         </div>
       </div>

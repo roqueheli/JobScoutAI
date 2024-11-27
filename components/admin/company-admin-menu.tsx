@@ -134,7 +134,7 @@ export function CompanyAdminMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => setIsAuthenticated(!isAuthenticated)}
+          onClick={() => setIsAuthenticated(false)}
         >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
