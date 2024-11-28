@@ -21,8 +21,8 @@ const legalLinks = [
     icon: Cookie,
   },
   {
-    href: "/legal/accesibility",
-    label: "Accesibility",
+    href: "/legal/accessibility",
+    label: "Accessibility",
     icon: Accessibility,
   },
 ];
