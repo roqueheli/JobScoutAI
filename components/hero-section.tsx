@@ -7,8 +7,7 @@ export function HeroSection() {
     <div className="relative">
       <div className="container flex flex-col items-center gap-4 text-center pt-16 md:pt-24">
         <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-          Find Your Dream Job
-          <span className="text-primary block">Today</span>
+          Find Your Dream Job Today
         </h1>
         <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
           Discover thousands of job opportunities with all the information you need. Manage all your job applications from start to finish.

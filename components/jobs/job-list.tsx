@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BuildingIcon, CalendarIcon, MapPinIcon } from "lucide-react";
 import { FEATURED_JOBS } from "../featured-jobs";
 import Link from "next/link";
+import { ApplyJobDialog } from "./apply-job-dialog";
+import { useState } from "react";
 
 interface JobListProps {
   filters: {
@@ -15,7 +17,15 @@ interface JobListProps {
   };
 }
 
+type ApplyJobDataType = {
+  title: string;
+  company: { name: string };
+}
+
 export function JobList({ filters }: JobListProps) {
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const [isApplyJobData, setIsApplyJobData] = useState<ApplyJobDataType>({ title: '', company: { name: ''}});
+  
   // Filter jobs based on selected filters
   const filteredJobs = FEATURED_JOBS.filter((job) => {
     if (filters.type.length && !filters.type.includes(job.type)) return false;
@@ -28,6 +38,11 @@ export function JobList({ filters }: JobListProps) {
       return false;
     return true;
   });
+
+  const handleApplyJob = (job : ApplyJobDataType) => {
+    setIsApplyDialogOpen(true);
+    setIsApplyJobData(job);
+  }
 
   return (
     <div className="space-y-4">
@@ -52,8 +67,8 @@ export function JobList({ filters }: JobListProps) {
                   </span>
                 </div>
               </div>
-              <Button>
-                <Link href={`/jobs/${job.id}`}>Apply Now</Link>
+              <Button className="cursor-pointer" onClick={() => handleApplyJob(job)}>
+                Apply Now
               </Button>
             </div>
           </CardHeader>
@@ -82,6 +97,12 @@ export function JobList({ filters }: JobListProps) {
           </p>
         </div>
       )}
+      <ApplyJobDialog
+        open={isApplyDialogOpen}
+        onOpenChange={setIsApplyDialogOpen}
+        jobTitle={isApplyJobData?.title}
+        companyName={isApplyJobData?.company.name}
+      />
     </div>
   );
 }
