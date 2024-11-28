@@ -1,9 +1,9 @@
 "use client";
 
-import { DashboardStats } from "@/components/dashboard/dashboard-stats";
-import { JobApplicationsChart } from "@/components/dashboard/job-applications-chart";
-import { JobStagesList } from "@/components/dashboard/job-stages-list";
-import { TopCandidates } from "@/components/dashboard/top-candidates";
+import { DashboardStats } from "@/components/company/dashboard/dashboard-stats";
+import { JobApplicationsChart } from "@/components/company/dashboard/job-applications-chart";
+import { JobStagesList } from "@/components/company/dashboard/job-stages-list";
+import { TopCandidates } from "@/components/company/dashboard/top-candidates";
 
 export default function DashboardPage() {
   return (
