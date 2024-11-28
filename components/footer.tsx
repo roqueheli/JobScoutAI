@@ -183,16 +183,16 @@ export function Footer() {
         {/* Bottom Footer */}
         <div className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <Link href="/terms" className="hover:text-primary">
+            <Link href="/legal/terms" className="hover:text-primary">
               Terms & Conditions
             </Link>
-            <Link href="/privacy" className="hover:text-primary">
+            <Link href="/legal/privacy" className="hover:text-primary">
               Privacy Policy
             </Link>
-            <Link href="/cookies" className="hover:text-primary">
+            <Link href="/legal/cookies" className="hover:text-primary">
               Cookie Policy
             </Link>
-            <Link href="/accessibility" className="hover:text-primary">
+            <Link href="/legal/accessibility" className="hover:text-primary">
               Accessibility
             </Link>
           </div>
