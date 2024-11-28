@@ -90,7 +90,7 @@ export function CompanyAdminMenu({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/company/candidates" className="w-full cursor-pointer">
+            <Link href="/company/candidate-pool" className="w-full cursor-pointer">
               <Users className="mr-2 h-4 w-4" />
               <span>Candidate Pool</span>
               <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>

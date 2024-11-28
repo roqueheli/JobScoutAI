@@ -1,5 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +11,8 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Briefcase, FileText, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
-import { User, Settings, Briefcase, FileText, LogOut } from "lucide-react";
 
 interface UserMenuProps {
   isAuthenticated: boolean;
@@ -47,28 +47,28 @@ export function UserMenu({ isAuthenticated, setIsAuthenticated, user }: UserMenu
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/profile" className="w-full cursor-pointer">
+            <Link href="/user/profile" className="w-full cursor-pointer">
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/applications" className="w-full cursor-pointer">
+            <Link href="/user/applications" className="w-full cursor-pointer">
               <Briefcase className="mr-2 h-4 w-4" />
               <span>Applications</span>
               <DropdownMenuShortcut>⌘A</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/saved-jobs" className="w-full cursor-pointer">
+            <Link href="/user/saved-jobs" className="w-full cursor-pointer">
               <FileText className="mr-2 h-4 w-4" />
               <span>Saved Jobs</span>
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/settings" className="w-full cursor-pointer">
+            <Link href="/user/settings" className="w-full cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
