@@ -140,7 +140,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pricing"
+                  href="/misc/pricing"
                   className="text-muted-foreground hover:text-primary"
                 >
                   Pricing
@@ -148,7 +148,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/employer-resources"
+                  href="/misc/resources"
                   className="text-muted-foreground hover:text-primary"
                 >
                   Resources
@@ -156,7 +156,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/talent-solutions"
+                  href="/misc/talent-solutions"
                   className="text-muted-foreground hover:text-primary"
                 >
                   Talent Solutions
