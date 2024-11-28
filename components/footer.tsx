@@ -102,7 +102,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/salary-guide"
+                  href="/misc/salary-guide"
                   className="text-muted-foreground hover:text-primary"
                 >
                   Salary Guide
@@ -110,7 +110,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/career-advice"
+                  href="/misc/career-advice"
                   className="text-muted-foreground hover:text-primary"
                 >
                   Career Advice
@@ -118,7 +118,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/resume-builder"
+                  href="/misc/resume-builder"
                   className="text-muted-foreground hover:text-primary"
                 >
                   Resume Builder
