@@ -15,7 +15,7 @@ const MOCK_USER = {
   email: "john@example.com",
   image:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
-  role: "compay_admin",
+  role: "company_admn",
   company: {
     name: "TechCorp",
     logo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",

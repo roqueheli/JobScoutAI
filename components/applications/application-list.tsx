@@ -36,8 +36,8 @@ const APPLICATIONS = Array.from({ length: 10 }, (_, i) => ({
     logo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",
   },
   appliedDate: "2024-03-01",
-  status: ["Applied", "Screening", "Interview", "Offer", "Rejected"][
-    Math.floor(Math.random() * 5)
+  status: ["Applied", "Screening", "Interview", "Offer", "Rejected", "Scheduled"][
+    Math.floor(Math.random() * 6)
   ],
   nextStep: "Technical Interview scheduled for March 15, 2024",
   archived: false,
@@ -68,6 +68,7 @@ const STATUS_STYLES = {
     "bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100",
   Offer: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
   Rejected: "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
+  Scheduled: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100",
 };
 
 interface ApplicationListProps {

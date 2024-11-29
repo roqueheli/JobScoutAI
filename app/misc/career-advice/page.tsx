@@ -35,9 +35,9 @@ export default function CareerTopics() {
   return (
     <div className="container py-8 flex flex-col">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight">Salary Guide</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Career Advice</h1>
         <p className="text-muted-foreground">
-          Explore salary insights and trends for your career path
+          Explore career insights and trends for your career path
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

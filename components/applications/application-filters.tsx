@@ -17,6 +17,7 @@ const STATUS_OPTIONS = [
   { value: "Interview", label: "Interview" },
   { value: "Offer", label: "Offer" },
   { value: "Rejected", label: "Rejected" },
+  { value: "Scheduled", label: "Scheduled" },
 ];
 
 const DATE_OPTIONS = [

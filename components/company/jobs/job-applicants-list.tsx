@@ -35,8 +35,8 @@ const MOCK_APPLICANTS = Array.from({ length: 50 }, (_, i) => ({
   email: `applicant${i + 1}@example.com`,
   avatar: `https://i.pravatar.cc/150?u=${i + 1}`,
   appliedDate: "2024-03-15",
-  stage: ["Applied", "Screening", "Interview", "Offer"][
-    Math.floor(Math.random() * 4)
+  stage: ["Applied", "Screening", "Interview", "Offer", "Scheduled"][
+    Math.floor(Math.random() * 5)
   ],
   experience: `${Math.floor(Math.random() * 10) + 1} years`,
   match: Math.floor(Math.random() * 30) + 70,
@@ -49,6 +49,7 @@ const STAGE_STYLES = {
   Interview:
     "bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100",
   Offer: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
+  Scheduled: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100",
 };
 
 interface JobApplicantsListProps {
@@ -126,6 +127,7 @@ export function JobApplicantsList({ jobId }: JobApplicantsListProps) {
                     <SelectItem value="Applied">Applied</SelectItem>
                     <SelectItem value="Screening">Screening</SelectItem>
                     <SelectItem value="Interview">Interview</SelectItem>
+                    <SelectItem value="Scheduled">Scheduled</SelectItem>
                     <SelectItem value="Offer">Offer</SelectItem>
                   </SelectContent>
                 </Select>

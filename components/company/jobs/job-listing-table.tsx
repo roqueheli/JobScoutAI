@@ -52,7 +52,7 @@ const JOBS = Array.from({ length: 20 }, (_, i) => ({
     },
     {
       name: "Screening",
-      count: Math.floor(Math.random() * 20) + 5,
+      count: Math.floor(Math.random() * 17) + 5,
       deadline: "2024-03-25",
     },
     {
@@ -64,6 +64,11 @@ const JOBS = Array.from({ length: 20 }, (_, i) => ({
       name: "Offer",
       count: Math.floor(Math.random() * 3),
       deadline: "2024-04-15",
+    },
+    {
+      name: "Scheduled",
+      count: Math.floor(Math.random() * 3),
+      deadline: "2024-12-31",
     },
   ],
   postedDate: "2024-02-15",

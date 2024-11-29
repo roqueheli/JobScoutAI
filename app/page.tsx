@@ -1,6 +1,7 @@
 import { HeroSection } from "@/components/hero-section";
 import { FeaturedJobs } from "@/components/featured-jobs";
 import { JobCategories } from "@/components/job-categories";
+import { TalentTestimonials } from "@/components/misc/talent-solutions/talent-testimonials";
 
 export default function Home() {
   return (
@@ -8,6 +9,9 @@ export default function Home() {
       <HeroSection />
       <JobCategories />
       <FeaturedJobs />
+      <div className="container">
+        <TalentTestimonials />
+      </div>
     </div>
   );
 }

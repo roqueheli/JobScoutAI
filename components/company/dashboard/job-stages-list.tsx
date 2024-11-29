@@ -16,7 +16,7 @@ const JOBS = [
       },
       {
         name: "Screening",
-        count: 28,
+        count: 26,
         deadline: "2024-03-25",
       },
       {
@@ -29,6 +29,11 @@ const JOBS = [
         count: 3,
         deadline: "2024-04-15",
       },
+      {
+        name: "Scheduled",
+        count: 2,
+        deadline: "2024-12-31",
+      },
     ],
   },
   {
@@ -38,7 +43,7 @@ const JOBS = [
     stages: [
       {
         name: "Applied",
-        count: 32,
+        count: 28,
         deadline: "2024-03-18",
       },
       {
@@ -50,6 +55,11 @@ const JOBS = [
         name: "Interview",
         count: 8,
         deadline: "2024-04-01",
+      },
+      {
+        name: "Scheduled",
+        count: 4,
+        deadline: "2024-12-31",
       },
     ],
   },
