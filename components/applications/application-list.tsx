@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,18 +12,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Archive,
+  ArrowRight,
   Building,
   Calendar,
+  CalendarPlus,
   MoreVertical,
-  ArrowRight,
-  Archive,
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { ApplicationTimeline } from "./application-timeline";
+import { useState } from "react";
 import { ApplicationPagination } from "./application-pagination";
+import { ApplicationTimeline } from "./application-timeline";
+import { ScheduleInterviewDialog } from "./schedule-interview-dialog";
 
 // This would typically come from your API
 const APPLICATIONS = Array.from({ length: 10 }, (_, i) => ({
@@ -81,6 +83,17 @@ export function ApplicationList({ filters }: ApplicationListProps) {
   const [expandedApplication, setExpandedApplication] = useState<number | null>(
     null
   );
+  const [scheduleInterview, setScheduleInterview] = useState<{
+    open: boolean;
+    applicationId: number | null;
+    companyName: string;
+    jobTitle: string;
+  }>({
+    open: false,
+    applicationId: null,
+    companyName: "",
+    jobTitle: "",
+  });
   const itemsPerPage = 5;
 
   // Filter and paginate applications
@@ -153,6 +166,24 @@ export function ApplicationList({ filters }: ApplicationListProps) {
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem>View Job Details</DropdownMenuItem>
                     <DropdownMenuItem>Contact Recruiter</DropdownMenuItem>
+                    {application.status === "Interview" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setScheduleInterview({
+                              open: true,
+                              applicationId: application.id,
+                              companyName: application.company.name,
+                              jobTitle: application.jobTitle,
+                            })
+                          }
+                        >
+                          <CalendarPlus className="mr-2 h-4 w-4" />
+                          Schedule Interview
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <Archive className="mr-2 h-4 w-4" />
@@ -222,6 +253,16 @@ export function ApplicationList({ filters }: ApplicationListProps) {
           onPageChange={setCurrentPage}
         />
       )}
+
+      <ScheduleInterviewDialog
+        open={scheduleInterview.open}
+        onOpenChange={(open) =>
+          setScheduleInterview((prev) => ({ ...prev, open }))
+        }
+        applicationId={scheduleInterview.applicationId!}
+        companyName={scheduleInterview.companyName}
+        jobTitle={scheduleInterview.jobTitle}
+      />
     </div>
   );
 }

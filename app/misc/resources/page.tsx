@@ -1,8 +1,8 @@
 "use client";
 
-// import { ResourceGuides } from "@/components/employers/resources/resource-guides";
-// import { ResourceTools } from "@/components/employers/resources/resource-tools";
-// import { ResourceWebinars } from "@/components/employers/resources/resource-webinars";
+import { ResourceGuides } from "@/components/misc/resources/resource-guides";
+import { ResourceTools } from "@/components/misc/resources/resource-tools";
+import { ResourceWebinars } from "@/components/misc/resources/resource-webinars";
 
 export default function EmployerResourcesPage() {
   return (
@@ -17,9 +17,9 @@ export default function EmployerResourcesPage() {
           </p>
         </div>
 
-        {/* <ResourceGuides />
+        <ResourceGuides />
         <ResourceWebinars />
-        <ResourceTools /> */}
+        <ResourceTools />
       </div>
     </div>
   );

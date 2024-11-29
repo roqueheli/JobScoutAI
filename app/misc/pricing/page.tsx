@@ -1,8 +1,8 @@
 "use client";
 
+import { PricingComparison } from "@/components/misc/pricing/pricing-comparison";
+import { PricingFAQ } from "@/components/misc/pricing/pricing-faq";
 import { PricingPlans } from "@/components/misc/pricing/pricing-plans";
-// import { PricingFAQ } from "@/components/misc/pricing/pricing-faq";
-// import { PricingComparison } from "@/components/misc/pricing/pricing-comparison";
 
 export default function PricingPage() {
   return (
@@ -16,8 +16,8 @@ export default function PricingPage() {
         </div>
 
         <PricingPlans />
-        {/* <PricingComparison />
-        <PricingFAQ /> */}
+        <PricingComparison />
+        <PricingFAQ />
       </div>
     </div>
   );

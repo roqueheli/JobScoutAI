@@ -5,17 +5,22 @@ import { SettingsSidebar } from "@/components/commons/settings/settings-sidebar"
 import { Bell, Building2, Palette, Settings, Shield, User } from "lucide-react";
 
 const settingsNavigation = [
+  // {
+  //   title: "General",
+  //   icon: Settings,
+  //   href: "/settings",
+  // },
   {
-    title: "User",
+    title: "Profile",
     icon: User,
     href: "/settings/user",
-    adminOnly: true,
+    adminOnly: false,
   },
   {
     title: "Company",
     icon: Building2,
     href: "/settings/company",
-    adminOnly: false,
+    adminOnly: true,
   },
   {
     title: "Notifications",
@@ -27,11 +32,11 @@ const settingsNavigation = [
     icon: Shield,
     href: "/settings/security",
   },
-  {
-    title: "Appearance",
-    icon: Palette,
-    href: "/settings/appearance",
-  },
+  // {
+  //   title: "Appearance",
+  //   icon: Palette,
+  //   href: "/settings/appearance",
+  // },
 ];
 
 export default function SettingsLayout({

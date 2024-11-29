@@ -1,6 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,22 +13,20 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
-  User,
-  Settings,
-  Building,
-  Users,
-  FileText,
   BarChart,
-  BriefcaseIcon,
-  LogOut,
   Bell,
+  BriefcaseIcon,
+  Building,
+  FileText,
+  LogOut,
+  Settings,
+  Users,
 } from "lucide-react";
+import Link from "next/link";
 
 interface CompanyAdminMenuProps {
-  isAuthenticated: boolean;
+  isAuthenticated?: boolean;
   setIsAuthenticated: (value: boolean) => void;
   user: {
     name: string;
@@ -36,11 +36,11 @@ interface CompanyAdminMenuProps {
       name: string;
       logo?: string;
     };
+    notifications?: number;
   };
 }
 
 export function CompanyAdminMenu({
-  isAuthenticated,
   setIsAuthenticated,
   user,
 }: CompanyAdminMenuProps) {
@@ -52,6 +52,14 @@ export function CompanyAdminMenu({
             <AvatarImage src={user.company.logo} alt={user.company.name} />
             <AvatarFallback>{user.company.name[0]}</AvatarFallback>
           </Avatar>
+          {user.notifications && user.notifications > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] rounded-full"
+            >
+              {user.notifications}
+            </Badge>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -90,7 +98,10 @@ export function CompanyAdminMenu({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/company/candidate-pool" className="w-full cursor-pointer">
+            <Link
+              href="/company/candidate-pool"
+              className="w-full cursor-pointer"
+            >
               <Users className="mr-2 h-4 w-4" />
               <span>Candidate Pool</span>
               <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
@@ -124,7 +135,7 @@ export function CompanyAdminMenu({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/company/settings" className="w-full cursor-pointer">
+            <Link href="/settings/company" className="w-full cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>

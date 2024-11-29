@@ -26,7 +26,7 @@ export default function CompanyJobsPage() {
             </p>
           </div>
           <Button asChild>
-            <Link href="/post-job">
+            <Link href="/company/post-job">
               <Plus className="mr-2 h-4 w-4" />
               Post New Job
             </Link>

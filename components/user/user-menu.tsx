@@ -15,7 +15,7 @@ import { Briefcase, FileText, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 
 interface UserMenuProps {
-  isAuthenticated: boolean;
+  isAuthenticated?: boolean;
   setIsAuthenticated: (value: boolean) => void;
   user: {
     name: string;
@@ -24,7 +24,7 @@ interface UserMenuProps {
   };
 }
 
-export function UserMenu({ isAuthenticated, setIsAuthenticated, user }: UserMenuProps) {  
+export function UserMenu({ setIsAuthenticated, user }: UserMenuProps) {  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

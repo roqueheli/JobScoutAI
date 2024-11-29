@@ -1,8 +1,8 @@
 "use client";
 
-// import { TalentServices } from "@/components/employers/talent-solutions/talent-services";
-// import { TalentTestimonials } from "@/components/employers/talent-solutions/talent-testimonials";
 import { TalentFeatures } from "@/components/misc/talent-solutions/talent-features";
+import { TalentServices } from "@/components/misc/talent-solutions/talent-services";
+import { TalentTestimonials } from "@/components/misc/talent-solutions/talent-testimonials";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -28,8 +28,8 @@ export default function TalentSolutionsPage() {
         </div>
 
         <TalentFeatures />
-        {/* <TalentServices />
-        <TalentTestimonials /> */}
+        <TalentServices />
+        <TalentTestimonials />
       </div>
     </div>
   );

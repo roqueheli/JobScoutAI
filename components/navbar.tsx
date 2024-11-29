@@ -6,7 +6,7 @@ import { AuthContext } from "@/context/auth/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext } from "react";
-import { CompanyAdminMenu } from "./admin/company-admin-menu";
+import { CompanyAdminMenu } from "./company/admin/company-admin-menu";
 import { UserMenu } from "./user/user-menu";
 
 // This would typically come from your auth context/provider
@@ -15,11 +15,12 @@ const MOCK_USER = {
   email: "john@example.com",
   image:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
-  role: "company_amin",
+  role: "compay_admin",
   company: {
     name: "TechCorp",
     logo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",
   },
+  notifications: 18,
 };
 
 export function Navbar() {
@@ -63,13 +64,12 @@ export function Navbar() {
                 />
                 <Button asChild>
                   {isAuthenticated && MOCK_USER.role === "company_admin" && (
-                    <Link href="/post-job">Post a Job</Link>
+                    <Link href="/company/post-job">Post a Job</Link>
                   )}
                 </Button>
               </>
             ) : (
               <UserMenu
-                isAuthenticated={isAuthenticated}
                 setIsAuthenticated={setIsAuthenticated}
                 user={MOCK_USER}
               />

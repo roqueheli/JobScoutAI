@@ -1,86 +1,74 @@
 "use client";
 
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreVertical,
+  Pencil,
+  Copy,
+  Archive,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  RefreshCw,
+} from "lucide-react";
 import { differenceInDays } from "date-fns";
-import { Archive, Copy, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { JobApplicantsList } from "./job-applicants-list";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 // This would typically come from your API
-const JOBS = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    department: "engineering",
-    location: "remote",
-    type: "Full-time",
-    status: "active",
-    totalCandidates: 45,
-    stages: [
-      {
-        name: "Applied",
-        count: 45,
-        deadline: "2024-03-20",
-      },
-      {
-        name: "Screening",
-        count: 28,
-        deadline: "2024-03-25",
-      },
-      {
-        name: "Interview",
-        count: 12,
-        deadline: "2024-04-05",
-      },
-      {
-        name: "Offer",
-        count: 3,
-        deadline: "2024-04-15",
-      },
-    ],
-    postedDate: "2024-02-15",
-    expiryDate: "2024-04-15",
-  },
-  {
-    id: 2,
-    title: "Product Designer",
-    department: "design",
-    location: "hybrid",
-    type: "Full-time",
-    status: "active",
-    totalCandidates: 32,
-    stages: [
-      {
-        name: "Applied",
-        count: 32,
-        deadline: "2024-03-18",
-      },
-      {
-        name: "Screening",
-        count: 20,
-        deadline: "2024-03-22",
-      },
-      {
-        name: "Interview",
-        count: 8,
-        deadline: "2024-04-01",
-      },
-    ],
-    postedDate: "2024-02-20",
-    expiryDate: "2024-04-20",
-  },
-] as const;
+const JOBS = Array.from({ length: 20 }, (_, i) => ({
+  id: i + 1,
+  title: i % 2 === 0 ? "Senior Frontend Developer" : "Product Designer",
+  department: i % 2 === 0 ? "engineering" : "design",
+  location: i % 2 === 0 ? "remote" : "hybrid",
+  type: "Full-time",
+  status: ["active", "expired", "closed"][Math.floor(Math.random() * 3)],
+  totalCandidates: Math.floor(Math.random() * 50) + 10,
+  stages: [
+    {
+      name: "Applied",
+      count: Math.floor(Math.random() * 30) + 10,
+      deadline: "2024-03-20",
+    },
+    {
+      name: "Screening",
+      count: Math.floor(Math.random() * 20) + 5,
+      deadline: "2024-03-25",
+    },
+    {
+      name: "Interview",
+      count: Math.floor(Math.random() * 10) + 2,
+      deadline: "2024-04-05",
+    },
+    {
+      name: "Offer",
+      count: Math.floor(Math.random() * 3),
+      deadline: "2024-04-15",
+    },
+  ],
+  postedDate: "2024-02-15",
+  expiryDate: "2024-04-15",
+}));
 
 const STATUS_STYLES = {
   active: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
@@ -100,6 +88,11 @@ interface JobListingTableProps {
 
 export function JobListingTable({ filters }: JobListingTableProps) {
   const [expandedJob, setExpandedJob] = useState<number | null>(null);
+  const [expandedApplicants, setExpandedApplicants] = useState<number | null>(
+    null
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
   const filteredJobs = JOBS.filter((job) => {
     if (filters.status.length && !filters.status.includes(job.status))
@@ -114,6 +107,16 @@ export function JobListingTable({ filters }: JobListingTableProps) {
     return true;
   });
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+
+  const handleRepublish = (jobId: number) => {
+    // Here you would typically make an API call to republish the job
+    console.log(`Republishing job ${jobId}`);
+  };
+
   const getDaysUntilDeadline = (deadline: string) => {
     const daysLeft = differenceInDays(new Date(deadline), new Date());
     return daysLeft;
@@ -127,7 +130,7 @@ export function JobListingTable({ filters }: JobListingTableProps) {
 
   return (
     <div className="space-y-4">
-      {filteredJobs.map((job) => (
+      {currentJobs.map((job) => (
         <Card key={job.id} className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
@@ -150,6 +153,16 @@ export function JobListingTable({ filters }: JobListingTableProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {(job.status === "expired" || job.status === "closed") && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleRepublish(job.id)}
+                  className="gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Republish
+                </Button>
+              )}
               <Button variant="outline" asChild>
                 <Link href={`/jobs/${job.id}`}>View Job</Link>
               </Button>
@@ -193,14 +206,46 @@ export function JobListingTable({ filters }: JobListingTableProps) {
                   Posted on {job.postedDate}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  setExpandedJob(expandedJob === job.id ? null : job.id)
-                }
-              >
-                {expandedJob === job.id ? "Hide Stages" : "View Stages"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    setExpandedJob(expandedJob === job.id ? null : job.id)
+                  }
+                >
+                  {expandedJob === job.id ? (
+                    <>
+                      Hide Stages
+                      <ChevronUp className="ml-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      View Stages
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    setExpandedApplicants(
+                      expandedApplicants === job.id ? null : job.id
+                    )
+                  }
+                >
+                  {expandedApplicants === job.id ? (
+                    <>
+                      Hide Applicants
+                      <ChevronUp className="ml-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      View Applicants
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             {expandedJob === job.id && (
@@ -229,6 +274,10 @@ export function JobListingTable({ filters }: JobListingTableProps) {
                 })}
               </div>
             )}
+
+            {expandedApplicants === job.id && (
+              <JobApplicantsList jobId={job.id} />
+            )}
           </div>
         </Card>
       ))}
@@ -243,6 +292,47 @@ export function JobListingTable({ filters }: JobListingTableProps) {
             <Link href="/post-job">Post New Job</Link>
           </Button>
         </div>
+      )}
+
+      {filteredJobs.length > itemsPerPage && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) setCurrentPage(currentPage - 1);
+                }}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === page}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(page);
+                  }}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
