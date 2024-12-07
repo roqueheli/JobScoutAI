@@ -9,23 +9,11 @@ import { useContext } from "react";
 import { CompanyAdminMenu } from "./company/admin/company-admin-menu";
 import { UserMenu } from "./user/user-menu";
 
-// This would typically come from your auth context/provider
-const MOCK_USER = {
-  name: "John Doe",
-  email: "john@example.com",
-  image:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop",
-  role: "company_admn",
-  company: {
-    name: "TechCorp",
-    logo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=100&auto=format&fit=crop",
-  },
-  notifications: 18,
-};
-
 export function Navbar() {
-  // This would typically be handled by your auth state
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
+
+  console.log(isAuthenticated, user);
+  
 
   return (
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -54,30 +42,46 @@ export function Navbar() {
 
         <div className="flex flex-1 items-center justify-end gap-4">
           <ThemeToggle />
-          {isAuthenticated ? (
-            MOCK_USER.role === "company_admin" ? (
-              <>
-                <CompanyAdminMenu
-                  isAuthenticated={isAuthenticated}
-                  setIsAuthenticated={setIsAuthenticated}
-                  user={MOCK_USER}
-                />
-                <Button asChild>
-                  {isAuthenticated && MOCK_USER.role === "company_admin" && (
+          {isAuthenticated && user ? (
+            <>
+              {user.role === "ADMIN" ? (
+                <>
+                  <CompanyAdminMenu
+                    user={{
+                      name: `${user.firstName} ${user.lastName}`,
+                      email: user.email,
+                      image: user.profilePicture,
+                      role: user.role,
+                      company: {
+                        name: "Company Name", // This should come from your context if available
+                        logo: "Company Logo URL", // This should come from your context if available
+                      },
+                      notifications: 0, // This should come from your context if available
+                    }}
+                    onLogout={logout}
+                  />
+                  <Button asChild>
                     <Link href="/company/post-job">Post a Job</Link>
-                  )}
-                </Button>
-              </>
-            ) : (
-              <UserMenu
-                setIsAuthenticated={setIsAuthenticated}
-                user={MOCK_USER}
-              />
-            )
+                  </Button>
+                </>
+              ) : (
+                <UserMenu
+                  user={{
+                    name: `${user.firstName} ${user.lastName}`,
+                    email: user.email,
+                    image: user.profilePicture,
+                  }}
+                  onLogout={logout}
+                />
+              )}
+            </>
           ) : (
             <>
               <Button variant="ghost" asChild>
                 <Link href="/auth/login">Sign in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/auth/register">Register</Link>
               </Button>
             </>
           )}

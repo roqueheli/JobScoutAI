@@ -1,6 +1,6 @@
 "use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,28 +12,19 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Bell,
-  Briefcase,
-  FileText,
-  LogOut,
-  Settings,
-  User,
-} from "lucide-react";
+import { Briefcase, FileText, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 
 interface UserMenuProps {
-  isAuthenticated?: boolean;
-  setIsAuthenticated: (value: boolean) => void;
   user: {
     name: string;
     email: string;
     image?: string;
-    notifications?: number;
   };
+  onLogout: () => void;
 }
 
-export function UserMenu({ setIsAuthenticated, user }: UserMenuProps) {
+export function UserMenu({ user, onLogout }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -42,14 +33,6 @@ export function UserMenu({ setIsAuthenticated, user }: UserMenuProps) {
             <AvatarImage src={user.image} alt={user.name} />
             <AvatarFallback>{user.name[0]}</AvatarFallback>
           </Avatar>
-          {user.notifications && user.notifications > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] rounded-full"
-            >
-              {user.notifications}
-            </Badge>
-          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -85,17 +68,7 @@ export function UserMenu({ setIsAuthenticated, user }: UserMenuProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link
-              href="/company/notifications"
-              className="w-full cursor-pointer"
-            >
-              <Bell className="mr-2 h-4 w-4" />
-              <span>Notifications</span>
-              <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/settings/user" className="w-full cursor-pointer">
+            <Link href="/user/settings" className="w-full cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
@@ -103,10 +76,7 @@ export function UserMenu({ setIsAuthenticated, user }: UserMenuProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => setIsAuthenticated(false)}
-          className="cursor-pointer"
-        >
+        <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

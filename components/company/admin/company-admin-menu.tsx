@@ -21,13 +21,11 @@ import {
   FileText,
   LogOut,
   Settings,
-  Users,
+  Users
 } from "lucide-react";
 import Link from "next/link";
 
 interface CompanyAdminMenuProps {
-  isAuthenticated?: boolean;
-  setIsAuthenticated: (value: boolean) => void;
   user: {
     name: string;
     email: string;
@@ -38,12 +36,10 @@ interface CompanyAdminMenuProps {
     };
     notifications?: number;
   };
+  onLogout: () => void;
 }
 
-export function CompanyAdminMenu({
-  setIsAuthenticated,
-  user,
-}: CompanyAdminMenuProps) {
+export function CompanyAdminMenu({ user, onLogout }: CompanyAdminMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -98,10 +94,7 @@ export function CompanyAdminMenu({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link
-              href="/company/candidate-pool"
-              className="w-full cursor-pointer"
-            >
+            <Link href="/company/candidates" className="w-full cursor-pointer">
               <Users className="mr-2 h-4 w-4" />
               <span>Candidate Pool</span>
               <DropdownMenuShortcut>⌘C</DropdownMenuShortcut>
@@ -127,15 +120,23 @@ export function CompanyAdminMenu({
           <DropdownMenuItem asChild>
             <Link
               href="/company/notifications"
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer relative"
             >
               <Bell className="mr-2 h-4 w-4" />
               <span>Notifications</span>
+              {user.notifications && user.notifications > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-[10px]"
+                >
+                  {user.notifications}
+                </Badge>
+              )}
               <DropdownMenuShortcut>⇧⌘N</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/settings/company" className="w-full cursor-pointer">
+            <Link href="/company/settings" className="w-full cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
               <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
@@ -143,10 +144,7 @@ export function CompanyAdminMenu({
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => setIsAuthenticated(false)}
-        >
+        <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
