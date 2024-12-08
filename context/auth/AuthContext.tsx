@@ -5,8 +5,8 @@ import { createContext, useCallback, useEffect, useState } from "react";
 interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string; // Cambiado de firstName
+  last_name: string; // Cambiado de lastName
   role: "ADMIN" | "APPLICANT";
   profilePicture?: string;
   company?: {
@@ -28,8 +28,8 @@ interface AuthContextType {
 interface RegisterData {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   role: "ADMIN" | "APPLICANT";
   company?: string;
 }
@@ -82,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
+      
       setUser(data.user);
     } catch (error) {
       console.error("Login error:", error);
@@ -100,14 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to register");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to register");
       }
 
-      const responseData = await response.json();
-      setUser(responseData.user);
+      const userData = await response.json(); // Actualizar el estado del contexto si es necesario
+      
+      setUser(userData.user);
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Registration error details:", error);
       throw error;
     }
   }, []);

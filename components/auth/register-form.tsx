@@ -4,26 +4,29 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { AuthContext } from "@/context/auth/AuthContext";
+import { RegisterData } from "@/types/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    first_name: z.string().min(2, "First name must be at least 2 characters"),
+    last_name: z.string().min(2, "Last name must be at least 2 characters"),
     email: z.string().email("Please enter a valid email address"),
     password: z
       .string()
@@ -33,7 +36,8 @@ const registerSchema = z
         "Password must contain at least one uppercase letter, one lowercase letter, and one number"
       ),
     confirmPassword: z.string(),
-    company: z.string().optional(),
+    company_id: z.string().optional(),
+    phone: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -49,60 +53,60 @@ export function RegisterForm() {
     "candidate"
   );
   const { toast } = useToast();
+  const { register: registerUser } = useContext(AuthContext); // Usar el contexto
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      company: "",
+      company_id: "",
+      phone: "",
     },
   });
 
-  async function onSubmit(data: RegisterValues) {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...data,
-          accountType,
-        }),
-      });
+  async function onSubmit(data: RegisterValues) {  
+    setIsLoading(true);  
+    try {  
+      const registrationData: RegisterData = {  
+        email: data.email,  
+        password: data.password,  
+        first_name: data.first_name,  
+        last_name: data.last_name,  
+        role: accountType === "candidate" ? "APPLICANT" : "ADMIN",  
+        phone: data.phone || undefined,  
+        company_id: accountType === "employer" && data.company_id   
+          ? parseInt(data.company_id)   
+          : null  
+      };  
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Registration failed");
-      }
-
-      toast({
-        title: "Success",
-        description: "Your account has been created.",
-      });
-
-      // Refresh the page to update the session
-      router.refresh();
-
-      // Redirect to dashboard or home page
-      router.push("/");
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Something went wrong. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+      // Validar los datos transformados
+      await registerUser(registrationData);  
+  
+      toast({  
+        title: "Success",  
+        description: "Your account has been created.",  
+      });  
+  
+      router.refresh();  
+      router.push("/");  
+    } catch (error) {  
+      console.error("Registration error:", error); // Para debugging  
+      toast({  
+        variant: "destructive",  
+        title: "Error",  
+        description:  
+          error instanceof Error  
+            ? error.message  
+            : "Something went wrong. Please try again.",  
+      });  
+    } finally {  
+      setIsLoading(false);  
+    }  
+  }  
 
   return (
     <div className="space-y-6">
@@ -120,19 +124,35 @@ export function RegisterForm() {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="first_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="last_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
@@ -152,15 +172,29 @@ export function RegisterForm() {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone (optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+1234567890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {accountType === "employer" && (
                 <FormField
                   control={form.control}
-                  name="company"
+                  name="company_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Company Name</FormLabel>
+                      <FormLabel>Company ID</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your company name" {...field} />
+                        <Input placeholder="Enter company ID" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

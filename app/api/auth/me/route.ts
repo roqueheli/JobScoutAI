@@ -30,8 +30,8 @@ export async function GET(request: NextRequest) {
             user: {
                 id: data.id,
                 email: data.email,
-                firstName: data.first_name,
-                lastName: data.last_name,
+                first_name: data.first_name,
+                last_name: data.last_name,
                 role: data.role,
                 profilePicture: data.profile_picture,
                 company: data.company ? {

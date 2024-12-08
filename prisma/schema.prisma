@@ -11,8 +11,8 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   password      String
-  firstName     String    @map("first_name")
-  lastName      String    @map("last_name")
+  first_name     String    @map("first_name")
+  last_name      String    @map("last_name")
   role          Role      @default(APPLICANT)
   phone         String?
   profilePicture String?  @map("profile_picture")

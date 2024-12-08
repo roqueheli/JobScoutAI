@@ -11,10 +11,7 @@ import { UserMenu } from "./user/user-menu";
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useContext(AuthContext);
-
-  console.log(isAuthenticated, user);
   
-
   return (
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
@@ -48,15 +45,15 @@ export function Navbar() {
                 <>
                   <CompanyAdminMenu
                     user={{
-                      name: `${user.firstName} ${user.lastName}`,
+                      name: `${user.first_name} ${user.last_name}`, // Actualizado
                       email: user.email,
                       image: user.profilePicture,
                       role: user.role,
                       company: {
-                        name: "Company Name", // This should come from your context if available
-                        logo: "Company Logo URL", // This should come from your context if available
+                        name: "Company Name",
+                        logo: "Company Logo URL",
                       },
-                      notifications: 0, // This should come from your context if available
+                      notifications: 0,
                     }}
                     onLogout={logout}
                   />
@@ -67,7 +64,7 @@ export function Navbar() {
               ) : (
                 <UserMenu
                   user={{
-                    name: `${user.firstName} ${user.lastName}`,
+                    name: `${user.first_name} ${user.last_name}`, // Actualizado
                     email: user.email,
                     image: user.profilePicture,
                   }}

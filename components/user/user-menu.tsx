@@ -24,7 +24,7 @@ interface UserMenuProps {
   onLogout: () => void;
 }
 
-export function UserMenu({ user, onLogout }: UserMenuProps) {
+export function UserMenu({ user, onLogout }: UserMenuProps) {  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

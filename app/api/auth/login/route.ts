@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
                 user: {
                     id: data.user.id,
                     email: data.user.email,
-                    firstName: data.user.first_name,
-                    lastName: data.user.last_name,
+                    first_name: data.user.first_name,
+                    last_name: data.user.last_name,
                     role: data.user.role,
                 }
             },
