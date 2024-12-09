@@ -7,153 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  first_name     String    @map("first_name")
-  last_name      String    @map("last_name")
-  role          Role      @default(APPLICANT)
-  phone         String?
-  profilePicture String?  @map("profile_picture")
-  resumeUrl     String?   @map("resume_url")
-  linkedinUrl   String?   @map("linkedin_url")
-  githubUrl     String?   @map("github_url")
-  isActive      Boolean   @default(true) @map("is_active")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  applications  JobApplication[]
-  interviews    Interview[]   @relation("Interviewer")
-  stageTransitions StageTransition[] @relation("TransitionedBy")
-
-  @@map("users")
-}
-
-model Company {
-  id          String    @id @default(cuid())
-  name        String
-  description String?   @db.Text
-  logoUrl     String?   @map("logo_url")
-  website     String?
-  industry    String?
-  companySize String?   @map("company_size")
-  foundedYear Int?      @map("founded_year")
-  location    String?
-  isVerified  Boolean   @default(false) @map("is_verified")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  jobs        JobPost[]
-
-  @@map("companies")
-}
-
-model JobPost {
-  id              String    @id @default(cuid())
-  companyId       String    @map("company_id")
-  title           String
-  description     String    @db.Text
-  requirements    String    @db.Text
-  responsibilities String   @db.Text @map("responsibilities")
-  locationType    LocationType @map("location_type")
-  location        String?
-  employmentType  EmploymentType @map("employment_type")
-  experienceLevel ExperienceLevel @map("experience_level")
-  salaryMin       Decimal?  @map("salary_min") @db.Decimal(12, 2)
-  salaryMax       Decimal?  @map("salary_max") @db.Decimal(12, 2)
-  salaryCurrency  String?   @map("salary_currency") @db.Char(3)
-  status          JobStatus @default(DRAFT)
-  applicationDeadline DateTime @map("application_deadline")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  applications    JobApplication[]
-  skills          JobSkill[]
-
-  @@map("job_posts")
-}
-
-model JobSkill {
-  id          String    @id @default(cuid())
-  jobPostId   String    @map("job_post_id")
-  skillName   String    @map("skill_name")
-  isRequired  Boolean   @default(true) @map("is_required")
-  jobPost     JobPost   @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
-
-  @@map("job_skills")
-}
-
-model JobApplication {
-  id            String    @id @default(cuid())
-  jobPostId     String    @map("job_post_id")
-  applicantId   String    @map("applicant_id")
-  status        ApplicationStatus @default(PENDING)
-  coverLetter   String?   @db.Text @map("cover_letter")
-  resumeVersion String    @map("resume_version")
-  currentStage  ApplicationStage @default(INITIAL_REVIEW) @map("current_stage")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  jobPost       JobPost   @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
-  applicant     User      @relation(fields: [applicantId], references: [id], onDelete: Cascade)
-  interviews    Interview[]
-  stageTransitions StageTransition[]
-
-  @@unique([jobPostId, applicantId], name: "unique_application")
-  @@map("applications")
-}
-
-model Interview {
-  id              String    @id @default(cuid())
-  applicationId   String    @map("application_id")
-  interviewerId   String    @map("interviewer_id")
-  type            InterviewType
-  scheduledAt     DateTime  @map("scheduled_at")
-  durationMinutes Int       @map("duration_minutes")
-  location        String?
-  meetingLink     String?   @map("meeting_link")
-  notes           String?   @db.Text
-  rescheduleCount Int       @default(0) @map("reschedule_count")
-  status          InterviewStatus @default(SCHEDULED)
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  application     JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  interviewer     User      @relation("Interviewer", fields: [interviewerId], references: [id], onDelete: Cascade)
-  feedback        InterviewFeedback?
-
-  @@map("interviews")
-}
-
-model InterviewFeedback {
-  id                  String    @id @default(cuid())
-  interviewId         String    @unique @map("interview_id")
-  technicalScore      Int?      @map("technical_score")
-  communicationScore  Int?      @map("communication_score")
-  culturalFitScore    Int?      @map("cultural_fit_score")
-  overallScore        Int?      @map("overall_score")
-  strengths           String?   @db.Text
-  weaknesses          String?   @db.Text
-  recommendation      Recommendation
-  notes              String?    @db.Text
-  createdAt          DateTime   @default(now()) @map("created_at")
-  updatedAt          DateTime   @updatedAt @map("updated_at")
-  interview          Interview  @relation(fields: [interviewId], references: [id], onDelete: Cascade)
-
-  @@map("interview_feedback")
-}
-
-model StageTransition {
-  id            String    @id @default(cuid())
-  applicationId String    @map("application_id")
-  fromStage     ApplicationStage @map("from_stage")
-  toStage       ApplicationStage @map("to_stage")
-  transitionedById String @map("transitioned_by")
-  notes         String?   @db.Text
-  createdAt     DateTime  @default(now()) @map("created_at")
-  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  transitionedBy User     @relation("TransitionedBy", fields: [transitionedById], references: [id], onDelete: Cascade)
-
-  @@map("stage_transitions")
-}
-
 enum Role {
   ADMIN
   APPLICANT
@@ -228,4 +81,166 @@ enum Recommendation {
   MAYBE
   NO
   STRONG_NO
+}
+
+model User {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  email            String            @unique
+  password_hash    String // Cambiado de password a password_hash  
+  first_name       String            @db.VarChar(100)
+  last_name        String            @db.VarChar(100)
+  role             Role              @default(APPLICANT)
+  phone            String?           @db.VarChar(20)
+  profile_picture  String?           @db.VarChar(255)
+  company_id       Int? // Mantenido como INT según el schema SQL  
+  resume_url       String?           @db.VarChar(255)
+  linkedin_url     String?           @db.VarChar(255)
+  github_url       String?           @db.VarChar(255)
+  is_active        Boolean           @default(true)
+  created_at       DateTime          @default(now()) @db.Timestamp()
+  updated_at       DateTime          @updatedAt @db.Timestamp()
+  applications     JobApplication[]
+  interviews       Interview[]       @relation("Interviewer")
+  stageTransitions StageTransition[] @relation("TransitionedBy")
+
+  @@index([email], name: "idx_email")
+  @@index([role], name: "idx_role")
+  @@map("users")
+}
+
+model Company {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String    @db.VarChar(255)
+  description  String?   @db.Text
+  logo_url     String?   @db.VarChar(255)
+  website      String?   @db.VarChar(255)
+  industry     String?   @db.VarChar(100)
+  company_size String?   @db.VarChar(50)
+  founded_year Int?      @db.Year
+  location     String?   @db.VarChar(255)
+  is_verified  Boolean   @default(false)
+  created_at   DateTime  @default(now()) @db.Timestamp()
+  updated_at   DateTime  @updatedAt @db.Timestamp()
+  jobs         JobPost[]
+
+  @@index([name], name: "idx_name")
+  @@index([industry], name: "idx_industry")
+  @@map("companies")
+}
+
+model JobPost {
+  id                   BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  company_id           BigInt           @db.UnsignedBigInt
+  title                String           @db.VarChar(255)
+  description          String           @db.Text
+  requirements         String           @db.Text
+  responsibilities     String           @db.Text
+  location_type        LocationType
+  location             String?          @db.VarChar(255)
+  employment_type      EmploymentType
+  experience_level     ExperienceLevel
+  salary_min           Decimal?         @db.Decimal(12, 2)
+  salary_max           Decimal?         @db.Decimal(12, 2)
+  salary_currency      String?          @db.Char(3)
+  status               JobStatus        @default(DRAFT)
+  application_deadline DateTime         @db.Date
+  created_at           DateTime         @default(now()) @db.Timestamp()
+  updated_at           DateTime         @updatedAt @db.Timestamp()
+  company              Company          @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  applications         JobApplication[]
+  skills               JobSkill[]
+
+  @@index([status], name: "idx_status")
+  @@index([application_deadline], name: "idx_deadline")
+  @@index([location_type], name: "idx_location_type")
+  @@index([employment_type], name: "idx_employment_type")
+  @@map("job_posts")
+}
+
+model JobSkill {
+  id          BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  job_post_id BigInt  @db.UnsignedBigInt
+  skill_name  String  @db.VarChar(100)
+  is_required Boolean @default(true)
+  jobPost     JobPost @relation(fields: [job_post_id], references: [id], onDelete: Cascade)
+
+  @@index([skill_name], name: "idx_skill_name")
+  @@map("job_skills")
+}
+
+model JobApplication {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  job_post_id      BigInt            @db.UnsignedBigInt
+  applicant_id     BigInt            @db.UnsignedBigInt
+  status           ApplicationStatus @default(PENDING)
+  cover_letter     String?           @db.Text
+  resume_version   String            @db.VarChar(255)
+  current_stage    ApplicationStage  @default(INITIAL_REVIEW)
+  created_at       DateTime          @default(now()) @db.Timestamp()
+  updated_at       DateTime          @updatedAt @db.Timestamp()
+  jobPost          JobPost           @relation(fields: [job_post_id], references: [id], onDelete: Cascade)
+  applicant        User              @relation(fields: [applicant_id], references: [id], onDelete: Cascade)
+  interviews       Interview[]
+  stageTransitions StageTransition[]
+
+  @@unique([job_post_id, applicant_id], name: "unique_application")
+  @@index([status], name: "idx_status")
+  @@index([current_stage], name: "idx_current_stage")
+  @@map("applications")
+}
+
+model Interview {
+  id               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  application_id   BigInt             @db.UnsignedBigInt
+  interviewer_id   BigInt             @db.UnsignedBigInt
+  type             InterviewType
+  scheduled_at     DateTime           @db.DateTime()
+  duration_minutes Int
+  location         String?            @db.VarChar(255)
+  meeting_link     String?            @db.VarChar(255)
+  notes            String?            @db.Text
+  reschedule_count Int                @default(0) @db.UnsignedTinyInt
+  status           InterviewStatus    @default(SCHEDULED)
+  created_at       DateTime           @default(now()) @db.Timestamp()
+  updated_at       DateTime           @updatedAt @db.Timestamp()
+  application      JobApplication     @relation(fields: [application_id], references: [id], onDelete: Cascade)
+  interviewer      User               @relation("Interviewer", fields: [interviewer_id], references: [id], onDelete: Cascade)
+  feedback         InterviewFeedback?
+
+  @@index([scheduled_at], name: "idx_scheduled_at")
+  @@index([status], name: "idx_status")
+  @@map("interviews")
+}
+
+model InterviewFeedback {
+  id                  BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  interview_id        BigInt         @unique @db.UnsignedBigInt
+  technical_score     Int?           @db.TinyInt
+  communication_score Int?           @db.TinyInt
+  cultural_fit_score  Int?           @db.TinyInt
+  overall_score       Int?           @db.TinyInt
+  strengths           String?        @db.Text
+  weaknesses          String?        @db.Text
+  recommendation      Recommendation
+  notes               String?        @db.Text
+  created_at          DateTime       @default(now()) @db.Timestamp()
+  updated_at          DateTime       @updatedAt @db.Timestamp()
+  interview           Interview      @relation(fields: [interview_id], references: [id], onDelete: Cascade)
+
+  @@map("interview_feedback")
+}
+
+model StageTransition {
+  id              BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  application_id  BigInt           @db.UnsignedBigInt
+  from_stage      ApplicationStage
+  to_stage        ApplicationStage
+  transitioned_by BigInt           @db.UnsignedBigInt
+  notes           String?          @db.Text
+  created_at      DateTime         @default(now()) @db.Timestamp()
+  application     JobApplication   @relation(fields: [application_id], references: [id], onDelete: Cascade)
+  transitionedBy  User             @relation("TransitionedBy", fields: [transitioned_by], references: [id], onDelete: Cascade)
+
+  @@index([application_id, to_stage], name: "idx_application_stage")
+  @@map("stage_transitions")
 }

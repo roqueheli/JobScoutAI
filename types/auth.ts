@@ -9,4 +9,5 @@ export type RegisterData = {
     role: UserRole;
     phone?: string;
     company_id?: number | null; // Cambiado a number ya que en la BD es INT  
-};  
+};
+

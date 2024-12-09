@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { createContext, useCallback, useEffect, useState } from "react";
 
 interface User {
@@ -46,6 +47,7 @@ export const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // Check if user is logged in on mount
   useEffect(() => {
@@ -82,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-      
+
       setUser(data.user);
     } catch (error) {
       console.error("Login error:", error);
@@ -106,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json(); // Actualizar el estado del contexto si es necesario
-      
+
       setUser(userData.user);
     } catch (error) {
       console.error("Registration error details:", error);
@@ -120,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
       });
       setUser(null);
+      router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
       throw error;
