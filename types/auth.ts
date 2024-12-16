@@ -1,5 +1,5 @@
 // types/auth.ts  
-export type UserRole = 'ADMIN' | 'APPLICANT';
+export type UserRole = 'ADMIN' | 'COMPANY_ADMIN' | 'INTERVIEWER' | 'APPLICANT';
 
 export type RegisterData = {
     email: string;
@@ -10,4 +10,3 @@ export type RegisterData = {
     phone?: string;
     company_id?: number | null; // Cambiado a number ya que en la BD es INT  
 };
-

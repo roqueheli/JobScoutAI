@@ -66,7 +66,8 @@ export function Navbar() {
                   user={{
                     name: `${user.first_name} ${user.last_name}`, // Actualizado
                     email: user.email,
-                    image: user.profilePicture,
+                    image: user.profile_picture || "",
+                    notifications: 5,
                   }}
                   onLogout={logout}
                 />

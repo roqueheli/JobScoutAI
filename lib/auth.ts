@@ -1,14 +1,13 @@
 import prisma from "@/lib/prisma";
 import { jwtVerify, SignJWT } from "jose";
-import { getServerSession, NextAuthOptions, User } from 'next-auth';
+import { NextAuthOptions, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export interface AuthUser {
-    id: bigint;
+    id: string; // Cambiado a string para que coincida con el tipo de JWT
     email: string;
-    password_hash: string;
     first_name: string;
     last_name: string;
     role: 'ADMIN' | 'APPLICANT';
@@ -19,6 +18,7 @@ export interface AuthUser {
     linkedin_url: string | null;
     github_url: string | null;
     is_active: boolean;
+    token?: string;
     created_at: Date;
     updated_at: Date;
 }
@@ -70,9 +70,33 @@ export const auth = {
         }
     },
 
-    async getCurrentUser(request: NextRequest): Promise<AuthUser | null> {
-        const session = await getServerSession(authOptions);
-        return session?.user || null;
+    async getCurrentUser(request: NextRequest) {
+        try {
+            // Esperar a que se resuelva la Promise de cookies()
+            const cookieStore = await cookies();
+            const token = cookieStore.get('token')?.value;
+
+            if (!token) {
+                return null;
+            }
+
+            const { payload } = await jwtVerify(
+                token,
+                new TextEncoder().encode(process.env.JWT_SECRET)
+            );
+
+            return {
+                id: payload.sub,
+                email: payload.email as string,
+                first_name: payload.first_name as string,
+                last_name: payload.last_name as string,
+                role: payload.role as 'ADMIN' | 'APPLICANT',
+                token: token,
+            };
+        } catch (error) {
+            console.error('Auth error:', error);
+            return null;
+        }
     },
 
     async updateSession(request: NextRequest): Promise<NextResponse | null> {
@@ -114,7 +138,7 @@ export const auth = {
             response.cookies.set({
                 name: "token",
                 value: session,
-                httpOnly: true,
+                httpOnly: false,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
                 maxAge: 86400,
@@ -164,7 +188,6 @@ export const auth = {
                                 role: user.role,
                                 phone: user.phone,
                                 profile_picture: user.profile_picture,
-                                company_id: user.company_id,
                                 resume_url: user.resume_url,
                                 linkedin_url: user.linkedin_url,
                                 github_url: user.github_url,
@@ -192,7 +215,6 @@ export const auth = {
                         role: user.role,
                         phone: user.phone,
                         profile_picture: user.profile_picture,
-                        company_id: user.company_id,
                         resume_url: user.resume_url,
                         linkedin_url: user.linkedin_url,
                         github_url: user.github_url,
@@ -206,7 +228,7 @@ export const auth = {
                 if (token) {
                     session.user = {
                         ...session.user,
-                        id: BigInt(token.id as string),
+                        id: token.id as string,
                         email: token.email as string,
                         first_name: token.first_name as string,
                         last_name: token.last_name as string,
@@ -230,26 +252,31 @@ export const auth = {
         pages: {
             signIn: '/auth/login',
         },
-        secret: process.env.NEXTAUTH_SECRET,
+        secret: process.env.JWT_SECRET,
     } as NextAuthOptions,
 };
 
 export const authOptions: NextAuthOptions = auth.config;
 export const { encrypt, decrypt, getSession, updateSession, checkRole } = auth;
-
 declare module "next-auth" {
     interface User {
-        id: string | bigint;
+        id: string; // Cambiado a string para que coincida con el tipo de JWT
         email: string;
         first_name: string;
         last_name: string;
-        role: 'ADMIN' | 'APPLICANT';
-        phone: string | null;
-        profile_picture: string | null;
-        company_id: number | null;
-        resume_url: string | null;
-        linkedin_url: string | null;
-        github_url: string | null;
+        role: 'ADMIN' | 'APPLICANT'; // Actualizado para incluir todos los roles  
+        phone?: string;
+        profile_picture?: string;
+        profession?: string; // Nuevo campo  
+        location?: string; // Nuevo campo  
+        bio?: string; // Nuevo campo  
+        experience_years?: string; // Nuevo campo  
+        education?: string; // Nuevo campo  
+        languages?: string; // Nuevo campo  
+        resume_url?: string;
+        linkedin_url?: string;
+        github_url?: string;
+        website?: string; // Nuevo campo  
         is_active: boolean;
         accessToken: string;
     }
@@ -265,13 +292,19 @@ declare module "next-auth" {
         email: string;
         first_name: string;
         last_name: string;
-        role: 'ADMIN' | 'APPLICANT';
-        phone: string | null;
-        profile_picture: string | null;
-        company_id: number | null;
-        resume_url: string | null;
-        linkedin_url: string | null;
-        github_url: string | null;
+        role: 'ADMIN' | 'APPLICANT'; // Actualizado para incluir todos los roles  
+        phone?: string;
+        profile_picture?: string;
+        profession?: string; // Nuevo campo  
+        location?: string; // Nuevo campo  
+        bio?: string; // Nuevo campo  
+        experience_years?: string; // Nuevo campo  
+        education?: string; // Nuevo campo  
+        languages?: string; // Nuevo campo  
+        resume_url?: string;
+        linkedin_url?: string;
+        github_url?: string;
+        website?: string; // Nuevo campo  
         is_active: boolean;
         accessToken: string;
         iat?: number;

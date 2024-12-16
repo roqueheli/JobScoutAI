@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,11 +21,12 @@ interface UserMenuProps {
     name: string;
     email: string;
     image?: string;
+    notifications?: number;
   };
   onLogout: () => void;
 }
 
-export function UserMenu({ user, onLogout }: UserMenuProps) {  
+export function UserMenu({ user, onLogout }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -33,6 +35,14 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
             <AvatarImage src={user.image} alt={user.name} />
             <AvatarFallback>{user.name[0]}</AvatarFallback>
           </Avatar>
+          {user.notifications && user.notifications > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] rounded-full"
+            >
+              {user.notifications}
+            </Badge>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

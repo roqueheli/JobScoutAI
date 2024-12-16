@@ -35,6 +35,7 @@ interface CompanyAdminMenuProps {
       logo?: string;
     };
     notifications?: number;
+    role?: string;
   };
   onLogout: () => void;
 }

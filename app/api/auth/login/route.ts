@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email, password }),
-        });
+        });       
 
         const data = await response.json();
-
+        
         if (!response.ok) {
             return NextResponse.json(
                 { error: data.message || 'Invalid credentials' },
@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Set the JWT token from the NestJS backend in an HTTP-only cookie
         const nextResponse = NextResponse.json(
             {
                 message: "Logged in successfully",
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
         nextResponse.cookies.set({
             name: "token",
             value: data.access_token,
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             maxAge: 86400, // 24 hours

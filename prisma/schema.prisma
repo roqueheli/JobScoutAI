@@ -10,6 +10,8 @@ datasource db {
 enum Role {
   ADMIN
   APPLICANT
+  COMPANY_ADMIN
+  INTERVIEWER
 }
 
 enum LocationType {
@@ -86,22 +88,29 @@ enum Recommendation {
 model User {
   id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
   email            String            @unique
-  password_hash    String // Cambiado de password a password_hash  
+  password_hash    String // Cambiado de password a password_hash      
   first_name       String            @db.VarChar(100)
   last_name        String            @db.VarChar(100)
   role             Role              @default(APPLICANT)
   phone            String?           @db.VarChar(20)
   profile_picture  String?           @db.VarChar(255)
-  company_id       Int? // Mantenido como INT según el schema SQL  
+  profession       String?           @db.VarChar(100)
+  location         String?           @db.VarChar(255)
+  bio              String?           @db.Text
+  experience_years String?           @db.VarChar(20)
+  education        String?           @db.VarChar(255)
+  languages        String?           @db.VarChar(255)
   resume_url       String?           @db.VarChar(255)
   linkedin_url     String?           @db.VarChar(255)
   github_url       String?           @db.VarChar(255)
+  website          String?           @db.VarChar(255)
   is_active        Boolean           @default(true)
   created_at       DateTime          @default(now()) @db.Timestamp()
   updated_at       DateTime          @updatedAt @db.Timestamp()
   applications     JobApplication[]
   interviews       Interview[]       @relation("Interviewer")
   stageTransitions StageTransition[] @relation("TransitionedBy")
+  companyAdmins    CompanyAdmin[]    @relation("UserCompanyAdmin")
 
   @@index([email], name: "idx_email")
   @@index([role], name: "idx_role")
@@ -109,28 +118,45 @@ model User {
 }
 
 model Company {
-  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  name         String    @db.VarChar(255)
-  description  String?   @db.Text
-  logo_url     String?   @db.VarChar(255)
-  website      String?   @db.VarChar(255)
-  industry     String?   @db.VarChar(100)
-  company_size String?   @db.VarChar(50)
-  founded_year Int?      @db.Year
-  location     String?   @db.VarChar(255)
-  is_verified  Boolean   @default(false)
-  created_at   DateTime  @default(now()) @db.Timestamp()
-  updated_at   DateTime  @updatedAt @db.Timestamp()
+  id           BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  name         String         @db.VarChar(255)
+  description  String?        @db.Text
+  logo_url     String?        @db.VarChar(255)
+  website      String?        @db.VarChar(255)
+  industry     String?        @db.VarChar(100)
+  company_size String?        @db.VarChar(50)
+  founded_year Int?           @db.Year
+  location     String?        @db.VarChar(255)
+  is_verified  Boolean        @default(false)
+  created_at   DateTime       @default(now()) @db.Timestamp()
+  updated_at   DateTime       @updatedAt @db.Timestamp()
   jobs         JobPost[]
+  admins       CompanyAdmin[] @relation("CompanyAdmins")
 
   @@index([name], name: "idx_name")
   @@index([industry], name: "idx_industry")
   @@map("companies")
 }
 
+model CompanyAdmin {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt   @db.UnsignedBigInt
+  company_id BigInt   @db.UnsignedBigInt
+  created_at DateTime @default(now()) @db.Timestamp()
+
+  user    User    @relation("UserCompanyAdmin", fields: [user_id], references: [id], onDelete: Cascade)
+  company Company @relation("CompanyAdmins", fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, company_id], name: "unique_user_company")
+  @@index([user_id], name: "idx_user_id")
+  @@index([company_id], name: "idx_company_id")
+  @@map("company_admins")
+}
+
 model JobPost {
   id                   BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
   company_id           BigInt           @db.UnsignedBigInt
+  created_by           BigInt           @db.UnsignedBigInt
   title                String           @db.VarChar(255)
   description          String           @db.Text
   requirements         String           @db.Text
@@ -154,6 +180,7 @@ model JobPost {
   @@index([application_deadline], name: "idx_deadline")
   @@index([location_type], name: "idx_location_type")
   @@index([employment_type], name: "idx_employment_type")
+  @@index([created_by], name: "idx_created_by")
   @@map("job_posts")
 }
 

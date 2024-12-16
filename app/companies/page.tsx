@@ -7,6 +7,7 @@ import { useState } from "react";
 export default function CompaniesPage() {
   const [filters, setFilters] = useState({
     industry: [],
+    services: [],
     size: [],
     location: [],
   });

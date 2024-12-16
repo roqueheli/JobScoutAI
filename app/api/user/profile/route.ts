@@ -1,50 +1,74 @@
-// api/user/profile/route.ts  
 import { auth } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+// Esquema de validación actualizado
 const updateProfileSchema = z.object({
     first_name: z.string().min(1).max(100).optional(),
     last_name: z.string().min(1).max(100).optional(),
     phone: z.string().max(20).nullable().optional(),
     profile_picture: z.string().max(255).nullable().optional(),
+    profession: z.string().nullable().optional(),
+    location: z.string().nullable().optional(),
+    bio: z.string().nullable().optional(),
+    experience_years: z.string().nullable().optional(),
+    education: z.string().nullable().optional(),
+    languages: z.array(z.string()).optional(),
     resume_url: z.string().max(255).nullable().optional(),
     linkedin_url: z.string().max(255).nullable().optional(),
     github_url: z.string().max(255).nullable().optional(),
+    website: z.string().max(255).nullable().optional(),
+    skills: z.array(z.string()).optional(),
 });
 
+// GET /api/user/profile o GET /api/user/profile/resume
 export async function GET(request: NextRequest) {
     try {
-        const user = await auth.getCurrentUser(request);
-        if (!user) {
+        const session = await auth.getCurrentUser(request);
+        if (!session) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const profile = await prisma.user.findUnique({
-            where: { id: BigInt(user.id) },
-            select: {
-                id: true,
-                email: true,
-                first_name: true,
-                last_name: true,
-                role: true,
-                phone: true,
-                profile_picture: true,
-                company_id: true,
-                resume_url: true,
-                linkedin_url: true,
-                github_url: true,
-                is_active: true,
-                created_at: true,
-                updated_at: true,
+        const cookieStore = await cookies();
+        const token = cookieStore.get('token')?.value;
+        const { pathname } = new URL(request.url);
+
+        // Si es una solicitud para descargar el CV
+        if (pathname.endsWith('/resume')) {
+            const response = await fetch(`${process.env.API_URL}/users/profile/resume`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to download resume');
+            }
+
+            // Obtener el blob del CV
+            const blob = await response.blob();
+            return new NextResponse(blob, {
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': 'attachment; filename="resume.pdf"',
+                },
+            });
+        }
+
+        // Si es una solicitud para obtener el perfil
+        const response = await fetch(`${process.env.API_URL}/users/profile`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
             },
         });
 
-        if (!profile) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        if (!response.ok) {
+            throw new Error('Failed to fetch profile');
         }
 
+        const profile = await response.json();
         return NextResponse.json(profile);
     } catch (error) {
         console.error('Profile fetch error:', error);
@@ -55,37 +79,70 @@ export async function GET(request: NextRequest) {
     }
 }
 
+// POST /api/user/profile/resume o POST /api/user/profile/picture
+export async function POST(request: NextRequest) {
+    try {
+        const session = await auth.getCurrentUser(request);
+        if (!session?.id) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { pathname } = new URL(request.url);
+        const formData = await request.formData();
+
+        // Determinar el endpoint basado en el pathname
+        const endpoint = pathname.endsWith('/picture')
+            ? `${process.env.API_URL}/users/profile/picture`
+            : `${process.env.API_URL}/users/profile/resume`;
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${session.token}`,
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to upload ${pathname.endsWith('/picture') ? 'profile picture' : 'resume'}`);
+        }
+
+        const result = await response.json();
+        return NextResponse.json(result);
+    } catch (error) {
+        console.error('Upload error:', error);
+        return NextResponse.json(
+            { error: 'Failed to upload file' },
+            { status: 500 }
+        );
+    }
+}
+
+// PATCH /api/user/profile
 export async function PATCH(request: NextRequest) {
     try {
-        const user = await auth.getCurrentUser(request);
-        if (!user) {
+        const session = await auth.getCurrentUser(request);
+        if (!session?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const data = await request.json();
         const validatedData = updateProfileSchema.parse(data);
 
-        const updatedProfile = await prisma.user.update({
-            where: { id: BigInt(user.id) },
-            data: validatedData,
-            select: {
-                id: true,
-                email: true,
-                first_name: true,
-                last_name: true,
-                role: true,
-                phone: true,
-                profile_picture: true,
-                company_id: true,
-                resume_url: true,
-                linkedin_url: true,
-                github_url: true,
-                is_active: true,
-                created_at: true,
-                updated_at: true,
+        const response = await fetch(`${process.env.API_URL}/users/profile`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${session.token}`,
+                'Content-Type': 'application/json',
             },
+            body: JSON.stringify(validatedData),
         });
 
+        if (!response.ok) {
+            throw new Error('Failed to update profile');
+        }
+
+        const updatedProfile = await response.json();
         return NextResponse.json(updatedProfile);
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -99,85 +156,28 @@ export async function PATCH(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
-    try {
-        const user = await auth.getCurrentUser(request);
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const formData = await request.formData();
-        const file = formData.get('resume') as File;
-
-        if (!file) {
-            return NextResponse.json(
-                { error: 'No file provided' },
-                { status: 400 }
-            );
-        }
-
-        if (!file.type.includes('pdf')) {
-            return NextResponse.json(
-                { error: 'Only PDF files are allowed' },
-                { status: 400 }
-            );
-        }
-
-        // Aquí iría la lógica para subir el archivo y obtener la URL  
-        const resume_url = `https://storage.example.com/${Date.now()}-${file.name}`;
-
-        const updatedUser = await prisma.user.update({
-            where: { id: BigInt(user.id) },
-            data: { resume_url },
-            select: {
-                id: true,
-                resume_url: true,
-            },
-        });
-
-        return NextResponse.json(updatedUser);
-    } catch (error) {
-        console.error('Resume upload error:', error);
-        return NextResponse.json(
-            { error: 'Failed to upload resume' },
-            { status: 500 }
-        );
-    }
-}
-
+// DELETE /api/user/profile/resume
 export async function DELETE(request: NextRequest) {
     try {
-        const user = await auth.getCurrentUser(request);
-        if (!user) {
+        const session = await auth.getCurrentUser(request);
+        if (!session?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const currentUser = await prisma.user.findUnique({
-            where: { id: BigInt(user.id) },
-            select: { resume_url: true },
-        });
-
-        if (!currentUser?.resume_url) {
-            return NextResponse.json(
-                { error: 'No resume found' },
-                { status: 404 }
-            );
-        }
-
-        // Aquí iría la lógica para eliminar el archivo físicamente  
-
-        const updatedUser = await prisma.user.update({
-            where: { id: BigInt(user.id) },
-            data: { resume_url: null },
-            select: {
-                id: true,
-                resume_url: true,
+        const response = await fetch(`${process.env.API_URL}/users/profile/resume`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${session.token}`,
             },
         });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete resume');
+        }
 
         return NextResponse.json({ message: 'Resume deleted successfully' });
     } catch (error) {
-        console.error('Resume deletion error:', error);
+        console.error('Resume delete error:', error);
         return NextResponse.json(
             { error: 'Failed to delete resume' },
             { status: 500 }

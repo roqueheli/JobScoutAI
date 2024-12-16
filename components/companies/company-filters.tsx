@@ -41,6 +41,7 @@ const LOCATIONS = [
 interface CompanyFiltersProps {
   filters: {
     industry: string[];
+    services: string[];
     size: string[];
     location: string[];
   };
@@ -49,7 +50,7 @@ interface CompanyFiltersProps {
 
 export function CompanyFilters({ filters, setFilters }: CompanyFiltersProps) {
   const activeFiltersCount =
-    filters.industry.length + filters.size.length + filters.location.length;
+    filters.industry.length + filters.size.length + filters.location.length + filters.services.length;
 
   return (
     <Sheet>

@@ -1,28 +1,16 @@
 "use client";
 
+import { UserProfile } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useEffect, useState } from "react";
 
-interface User {
-  id: string;
-  email: string;
-  first_name: string; // Cambiado de firstName
-  last_name: string; // Cambiado de lastName
-  role: "ADMIN" | "APPLICANT";
-  profilePicture?: string;
-  company?: {
-    id: string;
-    name: string;
-    logo?: string;
-  };
-}
-
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: User | null;
+  user: UserProfile | null;
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  checkAuth: () => Promise<void>; // Añadido para verificar la autenticación
   loading: boolean;
 }
 
@@ -41,11 +29,12 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   register: async () => {},
   logout: async () => {},
+  checkAuth: async () => {}, // Inicialmente vacío
   loading: true,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -56,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/auth/me");
+      const response = await fetch("/api/auth/me"); // Cambia esto si tienes un endpoint específico para verificar la sesión
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
@@ -76,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      });
+      });      
 
       if (!response.ok) {
         const error = await response.json();
@@ -84,7 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-
       setUser(data.user);
     } catch (error) {
       console.error("Login error:", error);
@@ -108,7 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json(); // Actualizar el estado del contexto si es necesario
-
       setUser(userData.user);
     } catch (error) {
       console.error("Registration error details:", error);
@@ -137,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        checkAuth, // Añadido al contexto
         loading,
       }}
     >

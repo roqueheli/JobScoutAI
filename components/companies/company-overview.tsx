@@ -1,20 +1,21 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Github, Linkedin, Twitter } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2, Globe, MapPin } from "lucide-react";
 
+// Actualizar la interfaz para que coincida con los datos de la base de datos
 interface CompanyOverviewProps {
   company: {
+    id: string;
+    name: string;
     description: string;
-    benefits: string[];
-    culture: string[];
-    techStack: string[];
-    socialLinks: {
-      linkedin: string;
-      twitter: string;
-      github: string;
-    };
+    website: string;
+    services: string[];
+    industry: string[];
+    company_size: string;
+    founded_year: number;
+    location: string;
+    is_verified: boolean;
   };
 }
 
@@ -33,28 +34,28 @@ export function CompanyOverview({ company }: CompanyOverviewProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Culture & Values</CardTitle>
+            <CardTitle>Industry</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {company.culture.map((value) => (
-                <Badge key={value} variant="secondary">
-                  {value}
+            {/* <div className="flex flex-wrap gap-2">
+              {company.industry.map((ind) => (
+                <Badge key={ind} variant="secondary">
+                  {ind}
                 </Badge>
               ))}
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Tech Stack</CardTitle>
+            <CardTitle>Services</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {company.techStack.map((tech) => (
-                <Badge key={tech} variant="outline">
-                  {tech}
+              {company.services.map((service) => (
+                <Badge key={service} variant="outline">
+                  {service}
                 </Badge>
               ))}
             </div>
@@ -65,16 +66,37 @@ export function CompanyOverview({ company }: CompanyOverviewProps) {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Benefits & Perks</CardTitle>
+            <CardTitle>Company Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
-              {company.benefits.map((benefit) => (
-                <li key={benefit} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                  {benefit}
+            <ul className="space-y-4">
+              <li className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Founded:</span>
+                <span>{company.founded_year}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Location:</span>
+                <span>{company.location}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
+                  👥
+                </span>
+                <span className="text-muted-foreground">Size:</span>
+                <span>{company.company_size}</span>
+              </li>
+              {company.is_verified && (
+                <li className="flex items-center gap-2">
+                  <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
+                    ✓
+                  </span>
+                  <span className="text-muted-foreground">
+                    Verified Company
+                  </span>
                 </li>
-              ))}
+              )}
             </ul>
           </CardContent>
         </Card>
@@ -83,47 +105,19 @@ export function CompanyOverview({ company }: CompanyOverviewProps) {
           <CardHeader>
             <CardTitle>Connect</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent>
             <Button
               variant="outline"
               className="w-full justify-start gap-2"
               asChild
             >
               <a
-                href={company.socialLinks.linkedin}
+                href={company.website}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Linkedin className="h-4 w-4" />
-                LinkedIn
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2"
-              asChild
-            >
-              <a
-                href={company.socialLinks.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Twitter className="h-4 w-4" />
-                Twitter
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2"
-              asChild
-            >
-              <a
-                href={company.socialLinks.github}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github className="h-4 w-4" />
-                GitHub
+                <Globe className="h-4 w-4" />
+                Visit Website
               </a>
             </Button>
           </CardContent>

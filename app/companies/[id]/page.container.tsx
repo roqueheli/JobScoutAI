@@ -5,9 +5,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CompanyDetail } from "@/types/companies";
 import { Building, Globe, MapPin, Users } from "lucide-react";
 
-export default function CompanyProfileDetail({ company }: { company: any }) {
+interface CompanyProfileDetailProps {
+  company: CompanyDetail;
+}
+
+export default function CompanyProfileDetail({
+  company,
+}: CompanyProfileDetailProps) {
+  // Transformar los datos para que coincidan con la estructura esperada
+  const transformedCompany = {
+    id: company.id,
+    name: company.name,
+    logo: company.logo_url,
+    industry: company.industry.join(", "),
+    location: company.location,
+    size: company.company_size,
+    website: company.website,
+    description: company.description,
+    services: company.services,
+    foundedYear: company.founded_year,
+    openPositions: company.job_posts.length,
+  };
+
   return (
     <div className="container py-8">
       <div className="max-w-5xl mx-auto">
@@ -17,30 +39,35 @@ export default function CompanyProfileDetail({ company }: { company: any }) {
             <div className="flex flex-col gap-6">
               <div className="flex items-start gap-6">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={company.logo} alt={company.name} />
-                  <AvatarFallback>{company.name[0]}</AvatarFallback>
+                  <AvatarImage
+                    src={transformedCompany.logo}
+                    alt={transformedCompany.name}
+                  />
+                  <AvatarFallback>{transformedCompany.name[0]}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h1 className="text-2xl font-bold mb-2">{company.name}</h1>
+                      <h1 className="text-2xl font-bold mb-2">
+                        {transformedCompany.name}
+                      </h1>
                       <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Building className="h-4 w-4" />
-                          {company.industry}
+                          {transformedCompany.industry}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
-                          {company.location}
+                          {transformedCompany.location}
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
-                          {company.size} employees
+                          {transformedCompany.size}
                         </span>
                         <span className="flex items-center gap-1">
                           <Globe className="h-4 w-4" />
                           <a
-                            href={company.website}
+                            href={transformedCompany.website}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline"
@@ -50,7 +77,9 @@ export default function CompanyProfileDetail({ company }: { company: any }) {
                         </span>
                       </div>
                     </div>
-                    <Button>View Open Positions</Button>
+                    <Button>
+                      View Open Positions ({transformedCompany.openPositions})
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -66,11 +95,11 @@ export default function CompanyProfileDetail({ company }: { company: any }) {
           </TabsList>
 
           <TabsContent value="overview">
-            <CompanyOverview company={company} />
+            <CompanyOverview company={transformedCompany} />
           </TabsContent>
 
           <TabsContent value="jobs">
-            <CompanyJobs companyId={company.id} />
+            <CompanyJobs companyId={transformedCompany.id} />
           </TabsContent>
         </Tabs>
       </div>
