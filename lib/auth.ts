@@ -1,65 +1,78 @@
 import prisma from "@/lib/prisma";
+import { Role } from '@prisma/client';
 import { jwtVerify, SignJWT } from "jose";
 import { NextAuthOptions, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export interface AuthUser {
-    id: string; // Cambiado a string para que coincida con el tipo de JWT
-    email: string;
-    first_name: string;
-    last_name: string;
-    role: 'ADMIN' | 'APPLICANT';
-    phone: string | null;
-    profile_picture: string | null;
-    company_id: number | null;
-    resume_url: string | null;
-    linkedin_url: string | null;
-    github_url: string | null;
-    is_active: boolean;
-    token?: string;
-    created_at: Date;
-    updated_at: Date;
-}
-
-interface JWTPayload extends Record<string, any> {
+// Extender el tipo JWTPayload de jose
+interface CustomJWTPayload extends Record<string, any> {
     id: string;
     email: string;
     first_name: string;
     last_name: string;
-    role: 'ADMIN' | 'APPLICANT';
+    role: Role;
+    phone?: string | null;
+    profile_picture?: string | null;
+    profession?: string | null;
+    location?: string | null;
+    bio?: string | null;
+    experience_years?: string | null;
+    education?: string | null;
+    languages?: string | null;
+    resume_url?: string | null;
+    linkedin_url?: string | null;
+    github_url?: string | null;
+    website?: string | null;
+    is_active?: boolean;
+    created_at?: Date;
+    updated_at?: Date;
+    accessToken?: string;
+}
+
+export interface AuthUser {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    role: Role;
     phone: string | null;
     profile_picture: string | null;
-    company_id: number | null;
+    profession: string | null;
+    location: string | null;
+    bio: string | null;
+    experience_years: string | null;
+    education: string | null;
+    languages: string | null;
     resume_url: string | null;
     linkedin_url: string | null;
     github_url: string | null;
+    website: string | null;
     is_active: boolean;
-    accessToken: string;
-    iat?: number;
-    exp?: number;
+    created_at: Date;
+    updated_at: Date;
 }
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
 
 export const auth = {
-    async encrypt(payload: JWTPayload): Promise<string> {
-        return await new SignJWT(payload)
+    async encrypt(payload: CustomJWTPayload): Promise<string> {
+        return await new SignJWT({ ...payload })
             .setProtectedHeader({ alg: "HS256" })
             .setIssuedAt()
             .setExpirationTime("24h")
             .sign(secret);
     },
 
-    async decrypt(input: string): Promise<JWTPayload> {
+    async decrypt(input: string): Promise<CustomJWTPayload> {
         const { payload } = await jwtVerify(input, secret, {
             algorithms: ["HS256"],
         });
-        return payload as JWTPayload;
+        return payload as unknown as CustomJWTPayload;
     },
 
-    async getSession(): Promise<JWTPayload | null> {
+    async getSession(): Promise<CustomJWTPayload | null> {
         const cookieStore = await cookies();
         const token = cookieStore.get("token")?.value;
         if (!token) return null;
@@ -72,7 +85,6 @@ export const auth = {
 
     async getCurrentUser(request: NextRequest) {
         try {
-            // Esperar a que se resuelva la Promise de cookies()
             const cookieStore = await cookies();
             const token = cookieStore.get('token')?.value;
 
@@ -90,7 +102,7 @@ export const auth = {
                 email: payload.email as string,
                 first_name: payload.first_name as string,
                 last_name: payload.last_name as string,
-                role: payload.role as 'ADMIN' | 'APPLICANT',
+                role: payload.role as Role,
                 token: token,
             };
         } catch (error) {
@@ -116,10 +128,16 @@ export const auth = {
                     role: true,
                     phone: true,
                     profile_picture: true,
-                    company_id: true,
+                    profession: true,
+                    location: true,
+                    bio: true,
+                    experience_years: true,
+                    education: true,
+                    languages: true,
                     resume_url: true,
                     linkedin_url: true,
                     github_url: true,
+                    website: true,
                     is_active: true,
                     created_at: true,
                     updated_at: true,
@@ -138,7 +156,7 @@ export const auth = {
             response.cookies.set({
                 name: "token",
                 value: session,
-                httpOnly: false,
+                httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
                 maxAge: 86400,
@@ -151,7 +169,7 @@ export const auth = {
         }
     },
 
-    async checkRole(request: NextRequest, allowedRoles: Array<'ADMIN' | 'APPLICANT'>): Promise<boolean> {
+    async checkRole(request: NextRequest, allowedRoles: Role[]): Promise<boolean> {
         const session = await this.getSession();
         if (!session) return false;
         return allowedRoles.includes(session.role);
@@ -180,20 +198,7 @@ export const auth = {
                         const user = await res.json();
 
                         if (res.ok && user) {
-                            return {
-                                id: user.id,
-                                email: user.email,
-                                first_name: user.first_name,
-                                last_name: user.last_name,
-                                role: user.role,
-                                phone: user.phone,
-                                profile_picture: user.profile_picture,
-                                resume_url: user.resume_url,
-                                linkedin_url: user.linkedin_url,
-                                github_url: user.github_url,
-                                is_active: user.is_active,
-                                accessToken: user.accessToken
-                            };
+                            return user;
                         }
                         return null;
                     } catch (error) {
@@ -208,18 +213,8 @@ export const auth = {
                 if (user) {
                     return {
                         ...token,
+                        ...user,
                         id: user.id.toString(),
-                        email: user.email,
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        role: user.role,
-                        phone: user.phone,
-                        profile_picture: user.profile_picture,
-                        resume_url: user.resume_url,
-                        linkedin_url: user.linkedin_url,
-                        github_url: user.github_url,
-                        is_active: user.is_active,
-                        accessToken: user.accessToken
                     };
                 }
                 return token;
@@ -227,20 +222,8 @@ export const auth = {
             async session({ session, token }) {
                 if (token) {
                     session.user = {
-                        ...session.user,
+                        ...token,
                         id: token.id as string,
-                        email: token.email as string,
-                        first_name: token.first_name as string,
-                        last_name: token.last_name as string,
-                        role: token.role as 'ADMIN' | 'APPLICANT',
-                        phone: token.phone as string | null,
-                        profile_picture: token.profile_picture as string | null,
-                        company_id: token.company_id as number | null,
-                        resume_url: token.resume_url as string | null,
-                        linkedin_url: token.linkedin_url as string | null,
-                        github_url: token.github_url as string | null,
-                        is_active: token.is_active as boolean,
-                        accessToken: token.accessToken as string
                     } as AuthUser & { accessToken: string };
                 }
                 return session;
@@ -258,26 +241,10 @@ export const auth = {
 
 export const authOptions: NextAuthOptions = auth.config;
 export const { encrypt, decrypt, getSession, updateSession, checkRole } = auth;
+
 declare module "next-auth" {
-    interface User {
-        id: string; // Cambiado a string para que coincida con el tipo de JWT
-        email: string;
-        first_name: string;
-        last_name: string;
-        role: 'ADMIN' | 'APPLICANT'; // Actualizado para incluir todos los roles  
-        phone?: string;
-        profile_picture?: string;
-        profession?: string; // Nuevo campo  
-        location?: string; // Nuevo campo  
-        bio?: string; // Nuevo campo  
-        experience_years?: string; // Nuevo campo  
-        education?: string; // Nuevo campo  
-        languages?: string; // Nuevo campo  
-        resume_url?: string;
-        linkedin_url?: string;
-        github_url?: string;
-        website?: string; // Nuevo campo  
-        is_active: boolean;
+    interface User extends Omit<AuthUser, 'role'> {
+        role: Role;
         accessToken: string;
     }
 
@@ -287,25 +254,8 @@ declare module "next-auth" {
         };
     }
 
-    interface JWT {
-        id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        role: 'ADMIN' | 'APPLICANT'; // Actualizado para incluir todos los roles  
-        phone?: string;
-        profile_picture?: string;
-        profession?: string; // Nuevo campo  
-        location?: string; // Nuevo campo  
-        bio?: string; // Nuevo campo  
-        experience_years?: string; // Nuevo campo  
-        education?: string; // Nuevo campo  
-        languages?: string; // Nuevo campo  
-        resume_url?: string;
-        linkedin_url?: string;
-        github_url?: string;
-        website?: string; // Nuevo campo  
-        is_active: boolean;
+    interface JWT extends Omit<AuthUser, 'role'> {
+        role: Role;
         accessToken: string;
         iat?: number;
         exp?: number;

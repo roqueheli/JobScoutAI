@@ -1,5 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FileText, Plus, Trash2, Upload, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+// Components
 import ConfirmationModal from "@/components/commons/confirmation-modal";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,16 +25,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { profileService } from "@/services/user-profile";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Plus, Trash2, Upload, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 
+// Services
+import { skillsService } from "@/services/skills";
+import { profileService } from "@/services/user-profile";
+
+// Constants
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_RESUME_TYPES = ["application/pdf"];
 
+// Schema
 const profileSchema = z.object({
   first_name: z.string().min(2, "First name must be at least 2 characters"),
   last_name: z.string().min(2, "Last name must be at least 2 characters"),
@@ -40,7 +47,7 @@ const profileSchema = z.object({
   bio: z.string().nullable(),
   experience_years: z.string().nullable(),
   education: z.string().nullable(),
-  languages: z.array(z.string()).optional(),
+  languages: z.array(z.string()).default([]),
   resume_url: z.string().nullable(),
   linkedin_url: z.string().url().nullable(),
   github_url: z.string().url().nullable(),
@@ -64,7 +71,7 @@ const profileSchema = z.object({
       "Only PDF files are accepted"
     )
     .optional(),
-  skills: z.array(z.string()).optional(),
+  skills: z.array(z.string()).default([]),
   picture: z.custom<FileList>().optional(),
 });
 
@@ -80,6 +87,8 @@ export default function UserProfilePage() {
   const [languages, setLanguages] = useState<string[]>([]); // Estado para la lista de idiomas
   const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
   const [isDeletingResume, setIsDeletingResume] = useState(false);
+  const [filteredSkills, setFilteredSkills] = useState<string[]>([]); // Sugerencias filtradas
+  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false); // Mostrar sugerencias
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -105,6 +114,26 @@ export default function UserProfilePage() {
     },
   });
 
+  // Helper function to handle unauthorized errors
+  function isUnauthorizedError(error: unknown): error is { message: string } {
+    return (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      error.message === "Unauthorized"
+    );
+  }
+
+  // Helper function to extract error messages
+  function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (typeof error === "object" && error !== null && "message" in error) {
+      return String((error as { message: unknown }).message);
+    }
+    return "Failed to update profile";
+  }
+
+  // Load profile data on component mount
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -117,7 +146,7 @@ export default function UserProfilePage() {
         setSkills(data.skills || []);
         setLanguages(data.languages || []);
       } catch (error) {
-        if (error.message === "Unauthorized") {
+        if (isUnauthorizedError(error)) {
           window.location.href = "/auth/login";
           return;
         }
@@ -133,21 +162,77 @@ export default function UserProfilePage() {
 
     loadProfile();
   }, [form, toast]);
-  const handleResumeDelete = () => {
-    setIsModalOpen(true); // Abre el modal
-  };
 
-  const addSkill = () => {
-    if (newSkill && !skills.includes(newSkill)) {
-      setSkills([...skills, newSkill]);
-      setNewSkill(""); // Limpiar el campo de entrada
+  // Handle adding a new skill
+  const addSkill = (skillToAdd: string = newSkill.trim()) => {
+    if (
+      skillToAdd &&
+      !skills.includes(skillToAdd) &&
+      filteredSkills.includes(skillToAdd)
+    ) {
+      const updatedSkills = [...skills, skillToAdd];
+      setSkills(updatedSkills);
+      form.setValue("skills", updatedSkills);
+      setNewSkill("");
+      setFilteredSkills([]);
+      setShowSkillSuggestions(false);
+    } else if (!filteredSkills.includes(skillToAdd)) {
+      toast({
+        title: "Invalid Skill",
+        description: "Please select a skill from the suggestions",
+        variant: "destructive",
+      });
     }
   };
 
+  // Handle removing a skill
   const removeSkill = (skillToRemove: string) => {
-    setSkills(skills.filter((skill) => skill !== skillToRemove));
+    const updatedSkills = skills.filter((skill) => skill !== skillToRemove);
+    setSkills(updatedSkills);
+    form.setValue("skills", updatedSkills);
   };
 
+  // Handle skill input change for suggestions
+  const handleSkillInputChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setNewSkill(value);
+
+    if (value.length > 0) {
+      try {
+        const suggestions = await skillsService.searchSkills(value); // Consultar skills desde el backend
+        setFilteredSkills(
+          suggestions.filter((skill) => !skills.includes(skill))
+        );
+        setShowSkillSuggestions(true);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch skill suggestions",
+          variant: "destructive",
+        });
+      }
+    } else {
+      setFilteredSkills([]);
+      setShowSkillSuggestions(false);
+    }
+  };
+
+  // Handle adding a new language
+  const addLanguage = () => {
+    if (newLanguage && !languages.includes(newLanguage)) {
+      setLanguages([...languages, newLanguage]);
+      setNewLanguage(""); // Clear input
+    }
+  };
+
+  // Handle removing a language
+  const removeLanguage = (languageToRemove: string) => {
+    setLanguages(languages.filter((language) => language !== languageToRemove));
+  };
+
+  // Handle form submission
   async function onSubmit(data: ProfileFormValues) {
     setIsSubmitting(true);
 
@@ -170,6 +255,7 @@ export default function UserProfilePage() {
 
       // Transform data for update
       const { resume, picture, ...updateData } = data;
+
       const transformedData = {
         ...updateData,
         phone: data.phone || undefined,
@@ -201,7 +287,7 @@ export default function UserProfilePage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update profile",
+        description: getErrorMessage(error),
         variant: "destructive",
       });
     } finally {
@@ -209,19 +295,11 @@ export default function UserProfilePage() {
     }
   }
 
-  // Función para agregar un idioma
-  const addLanguage = () => {
-    if (newLanguage && !languages.includes(newLanguage)) {
-      setLanguages([...languages, newLanguage]);
-      setNewLanguage(""); // Limpiar el campo de entrada
-    }
+  const handleResumeDelete = () => {
+    setIsModalOpen(true); // Abre el modal
   };
 
-  // Función para eliminar un idioma
-  const removeLanguage = (languageToRemove: string) => {
-    setLanguages(languages.filter((language) => language !== languageToRemove));
-  };
-
+  // Handle deleting the resume
   const confirmDeleteResume = async () => {
     setIsDeletingResume(true);
     try {
@@ -243,6 +321,7 @@ export default function UserProfilePage() {
     }
   };
 
+  // Handle downloading the resume
   const handleDownloadResume = async () => {
     try {
       const blob = await profileService.downloadResume();
@@ -265,6 +344,7 @@ export default function UserProfilePage() {
     }
   };
 
+  // Handle uploading the profile picture
   const handleProfilePictureUpload = async (file: File) => {
     if (!file) {
       toast({
@@ -333,10 +413,7 @@ export default function UserProfilePage() {
                 <CardContent>
                   <div className="space-y-8">
                     <div className="flex items-center gap-6">
-                      <Avatar
-                        className="h-24 w-24"
-                        imageUrl={form.getValues("profile_picture") || ""}
-                      >
+                      <Avatar className="h-24 w-24">
                         <AvatarImage
                           src={form.getValues("profile_picture") || ""}
                           alt={`${form.getValues(
@@ -363,9 +440,9 @@ export default function UserProfilePage() {
                         accept="image/*"
                         style={{ display: "none" }}
                         onChange={(e) => {
-                          const files = e.target.files; // Obtén los archivos
+                          const files = e.target.files;
                           if (files && files.length > 0) {
-                            handleProfilePictureUpload(files[0]); // Pasa el archivo a la función
+                            handleProfilePictureUpload(files[0]);
                           } else {
                             toast({
                               title: "Error",
@@ -558,34 +635,75 @@ export default function UserProfilePage() {
                   <CardTitle>Skills</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div>
+                  <div className="relative">
                     <div className="flex gap-2">
                       <Input
                         value={newSkill}
-                        onChange={(e) => setNewSkill(e.target.value)}
+                        onChange={handleSkillInputChange}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (newSkill.length > 0) {
+                            setShowSkillSuggestions(true);
+                          }
+                        }}
                         placeholder="Add a skill..."
-                        onKeyPress={(e) => e.key === "Enter" && addSkill()}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addSkill();
+                          }
+                        }}
                       />
-                      <Button onClick={addSkill}>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addSkill();
+                        }}
+                      >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
+
+                    {showSkillSuggestions && filteredSkills.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg">
+                        <div className="py-1">
+                          {filteredSkills.map((suggestion) => (
+                            <button
+                              key={suggestion} // Asegúrate de que esto sea único
+                              className="w-full text-left px-4 py-2 hover:bg-accent"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addSkill(suggestion);
+                              }}
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {skills.map((skill) => (
+                      {/* {skills.map((skill) => (
                         <Badge
-                          key={skill}
+                          key={skill} // Asegúrate de que esto sea único
                           variant="secondary"
                           className="gap-1 pr-1"
                         >
                           {skill}
                           <button
-                            onClick={() => removeSkill(skill)}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              removeSkill(skill);
+                            }}
                             className="ml-2 hover:text-destructive"
                           >
                             <X className="h-3 w-3" />
                           </button>
                         </Badge>
-                      ))}
+                      ))} */}
                     </div>
                   </div>
                 </CardContent>

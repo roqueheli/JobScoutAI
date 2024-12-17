@@ -51,6 +51,11 @@ enum ApplicationStatus {
   ACCEPTED
   REJECTED
   WITHDRAWN
+  DRAFT
+  IN_REVIEW
+  INTERVIEW_SCHEDULED
+  HELD
+  CLOSED
 }
 
 enum ApplicationStage {
@@ -111,9 +116,10 @@ model User {
   interviews       Interview[]       @relation("Interviewer")
   stageTransitions StageTransition[] @relation("TransitionedBy")
   companyAdmins    CompanyAdmin[]    @relation("UserCompanyAdmin")
+  skills           UserSkill[]
 
-  @@index([email], name: "idx_email")
-  @@index([role], name: "idx_role")
+  @@index([email])
+  @@index([role])
   @@map("users")
 }
 
@@ -187,11 +193,14 @@ model JobPost {
 model JobSkill {
   id          BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
   job_post_id BigInt  @db.UnsignedBigInt
+  skill_id    BigInt  @db.UnsignedBigInt
   skill_name  String  @db.VarChar(100)
   is_required Boolean @default(true)
   jobPost     JobPost @relation(fields: [job_post_id], references: [id], onDelete: Cascade)
+  skill       Skill   @relation("SkillToJobSkill", fields: [skill_id], references: [id])
 
-  @@index([skill_name], name: "idx_skill_name")
+  @@index([skill_name])
+  @@index([skill_id])
   @@map("job_skills")
 }
 
@@ -270,4 +279,31 @@ model StageTransition {
 
   @@index([application_id, to_stage], name: "idx_application_stage")
   @@map("stage_transitions")
+}
+
+model UserSkill {
+  user_id    BigInt   @db.UnsignedBigInt
+  skill_id   BigInt   @db.UnsignedBigInt
+  created_at DateTime @default(now()) @db.Timestamp()
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  skill      Skill    @relation(fields: [skill_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, skill_id])
+  @@index([user_id])
+  @@index([skill_id])
+  @@map("user_skills")
+}
+
+model Skill {
+  id         BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String      @unique @db.VarChar(100)
+  category   String      @db.VarChar(50)
+  created_at DateTime    @default(now()) @db.Timestamp()
+  updated_at DateTime    @updatedAt @db.Timestamp()
+  users      UserSkill[]
+  jobSkills  JobSkill[]  @relation("SkillToJobSkill")
+
+  @@index([name])
+  @@index([category])
+  @@map("skills")
 }
