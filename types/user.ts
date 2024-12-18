@@ -1,10 +1,12 @@
+import { UserRole } from "./auth";
+
 // types/user.ts
 export interface UserProfile {
     id: string;
     email: string;
     first_name: string;
     last_name: string;
-    role: 'ADMIN' | 'APPLICANT';
+    role: UserRole;
     phone: string | null;
     profile_picture: string | null;
     profession: string | null;

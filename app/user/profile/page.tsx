@@ -39,7 +39,7 @@ const profileSchema = z.object({
   first_name: z.string().min(2, "First name must be at least 2 characters"),
   last_name: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  role: z.enum(["ADMIN", "APPLICANT"]).default("APPLICANT"),
+  role: z.enum(["APPLICANT", "ADMIN", "COMPANY_ADMIN", "INTERVIEWER"]).default("APPLICANT"),
   phone: z.string().nullable(),
   profile_picture: z.string().nullable(),
   profession: z.string().nullable(),
@@ -137,7 +137,7 @@ export default function UserProfilePage() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const data = await profileService.getProfile();
+        const data = await profileService.getProfile();        
         form.reset({
           ...data,
           languages: data.languages || [],

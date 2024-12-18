@@ -24,14 +24,15 @@ const updateProfileSchema = z.object({
 
 // GET /api/user/profile
 export async function GET(request: NextRequest) {
-    try {
+    try {       
         const session = await auth.getCurrentUser(request);
+        
         if (!session) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const cookieStore = await cookies();
-        const token = cookieStore.get('token')?.value;
+        const token = cookieStore.get('token')?.value;        
 
         const response = await fetch(`${process.env.API_URL}/users/profile`, {
             headers: {
@@ -40,12 +41,17 @@ export async function GET(request: NextRequest) {
             },
         });
 
+        
         if (!response.ok) {
             throw new Error('Failed to fetch profile');
         }
-
+        
         const profile = await response.json();
-        return NextResponse.json(profile);
+        return NextResponse.json(profile, {
+            headers: {
+                'Cache-Control': 'no-store',
+            },
+        });
     } catch (error) {
         console.error('Profile fetch error:', error);
         return NextResponse.json(

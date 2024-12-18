@@ -1,5 +1,6 @@
 "use client";
 
+import { UserRole } from "@/types/auth";
 import { UserProfile } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useEffect, useState } from "react";
@@ -19,7 +20,7 @@ interface RegisterData {
   password: string;
   first_name: string;
   last_name: string;
-  role: "ADMIN" | "APPLICANT";
+  role: UserRole;
   company?: string;
 }
 
@@ -65,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      });      
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -81,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const register = useCallback(async (data: RegisterData) => {
-    try {
+    try {     
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -96,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json(); // Actualizar el estado del contexto si es necesario
+      
       setUser(userData.user);
     } catch (error) {
       console.error("Registration error details:", error);

@@ -1,12 +1,13 @@
 import { jwtVerify, type JWTPayload } from "jose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { UserRole } from "./types/auth";
 
 // Extendemos la interfaz JWTPayload de jose
 interface CustomJWTPayload extends JWTPayload {
   id: string;
   email: string;
-  role: 'ADMIN' | 'APPLICANT';
+  role: UserRole;
 }
 
 // Configuración de rutas

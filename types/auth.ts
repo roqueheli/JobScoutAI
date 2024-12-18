@@ -1,5 +1,5 @@
 // types/auth.ts  
-export type UserRole = 'ADMIN' | 'COMPANY_ADMIN' | 'INTERVIEWER' | 'APPLICANT';
+export type UserRole = "APPLICANT" | "ADMIN" | "COMPANY_ADMIN" | "INTERVIEWER";
 
 export type RegisterData = {
     email: string;

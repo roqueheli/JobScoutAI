@@ -21,7 +21,7 @@ import {
   FileText,
   LogOut,
   Settings,
-  Users
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -41,6 +41,8 @@ interface CompanyAdminMenuProps {
 }
 
 export function CompanyAdminMenu({ user, onLogout }: CompanyAdminMenuProps) {
+  console.log('user', user);
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -49,14 +51,14 @@ export function CompanyAdminMenu({ user, onLogout }: CompanyAdminMenuProps) {
             <AvatarImage src={user.company.logo} alt={user.company.name} />
             <AvatarFallback>{user.company.name[0]}</AvatarFallback>
           </Avatar>
-          {user.notifications && user.notifications > 0 && (
+          {user.notifications && user.notifications > 0 ? (
             <Badge
               variant="destructive"
               className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] rounded-full"
             >
               {user.notifications}
             </Badge>
-          )}
+          ) : null }
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

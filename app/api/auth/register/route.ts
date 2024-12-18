@@ -7,7 +7,7 @@ const registerSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"),
     first_name: z.string().min(2, "First name must be at least 2 characters"),
     last_name: z.string().min(2, "Last name must be at least 2 characters"),
-    role: z.enum(["ADMIN", "APPLICANT"]),
+    role: z.enum(["ADMIN", "APPLICANT", "COMPANY_ADMIN", "INTERVIEWER"]),
     phone: z.string().optional(),
     company_id: z.number().optional().nullable(),
 });
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
             password: body.password,
             first_name: body.first_name || body.name.split(' ')[0],
             last_name: body.last_name || body.name.split(' ').slice(1).join(' ') || '',
-            role: body.accountType === 'employer' ? 'ADMIN' : 'APPLICANT',
+            role: body.accountType === 'candidate' ? 'APPLICANT' : 'COMPANY_ADMIN',
             company_id: body.company ? parseInt(body.company) : null,
             phone: body.phone,
         };

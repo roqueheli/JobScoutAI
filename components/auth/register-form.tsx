@@ -23,6 +23,7 @@ import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+// Actualización del esquema de registro
 const registerSchema = z
   .object({
     first_name: z.string().min(2, "First name must be at least 2 characters"),
@@ -36,7 +37,7 @@ const registerSchema = z
         "Password must contain at least one uppercase letter, one lowercase letter, and one number"
       ),
     confirmPassword: z.string(),
-    company_id: z.string().optional(),
+    company_id: z.string().optional(), // Hacer company_id opcional
     phone: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -67,46 +68,48 @@ export function RegisterForm() {
       phone: "",
     },
   });
-
-  async function onSubmit(data: RegisterValues) {  
-    setIsLoading(true);  
-    try {  
-      const registrationData: RegisterData = {  
-        email: data.email,  
-        password: data.password,  
-        first_name: data.first_name,  
-        last_name: data.last_name,  
-        role: accountType === "candidate" ? "APPLICANT" : "ADMIN",  
-        phone: data.phone || undefined,  
-        company_id: accountType === "employer" && data.company_id   
-          ? parseInt(data.company_id)   
-          : null  
-      };  
+ 
+  async function onSubmit(data: RegisterValues) {
+    
+    setIsLoading(true);
+    try {
+      const registrationData: RegisterData = {
+        email: data.email,
+        password: data.password,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        role: accountType === "candidate" ? "APPLICANT" : "COMPANY_ADMIN", // Cambiar a COMPANY_ADMIN
+        phone: data.phone || undefined,
+        company_id:
+          accountType === "employer" && data.company_id
+            ? parseInt(data.company_id)
+            : undefined, // Cambiar a undefined si no se proporciona
+      };
 
       // Validar los datos transformados
-      await registerUser(registrationData);  
-  
-      toast({  
-        title: "Success",  
-        description: "Your account has been created.",  
-      });  
-  
-      router.refresh();  
-      router.push("/");  
-    } catch (error) {  
-      console.error("Registration error:", error); // Para debugging  
-      toast({  
-        variant: "destructive",  
-        title: "Error",  
-        description:  
-          error instanceof Error  
-            ? error.message  
-            : "Something went wrong. Please try again.",  
-      });  
-    } finally {  
-      setIsLoading(false);  
-    }  
-  }  
+      await registerUser(registrationData);
+
+      toast({
+        title: "Success",
+        description: "Your account has been created.",
+      });
+
+      router.refresh();
+      router.push("/");
+    } catch (error) {
+      console.error("Registration error:", error); // Para debugging
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-6">

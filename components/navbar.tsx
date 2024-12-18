@@ -11,6 +11,9 @@ import { UserMenu } from "./user/user-menu";
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useContext(AuthContext);
+
+  console.log('user', user);
+  
   
   return (
     <header className="flex justify-center sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -41,19 +44,19 @@ export function Navbar() {
           <ThemeToggle />
           {isAuthenticated && user ? (
             <>
-              {user.role === "ADMIN" ? (
+              {user.role === "ADMIN" || user.role === "COMPANY_ADMIN" || user.role === "INTERVIEWER" ? (
                 <>
                   <CompanyAdminMenu
                     user={{
                       name: `${user.first_name} ${user.last_name}`, // Actualizado
                       email: user.email,
-                      image: user.profilePicture,
+                      image: user.profile_picture || "",
                       role: user.role,
                       company: {
                         name: "Company Name",
                         logo: "Company Logo URL",
                       },
-                      notifications: 0,
+                      notifications: 3,
                     }}
                     onLogout={logout}
                   />

@@ -11,7 +11,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Icons.briefcase className="mr-2 h-6 w-6" />
-          iTech Solutions
+          JobScoutAI
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
@@ -37,7 +37,7 @@ export default function LoginPage() {
           <LoginForm />
           <p className="px-8 text-center text-sm text-muted-foreground">
             <Link
-              href="/register"
+              href="/auth/register"
               className="hover:text-brand underline underline-offset-4"
             >
               Don&apos;t have an account? Sign Up
