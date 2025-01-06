@@ -3,6 +3,7 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { Icons } from "@/components/icons";
 import Link from "next/link";
+import LoginOptions from "../options/page";
 
 export default function LoginPage() {
   return (
@@ -16,9 +17,9 @@ export default function LoginPage() {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "This platform has completely transformed how we manage our IT
+              This platform has completely transformed how we manage our IT
               solutions. The efficiency and innovation have exceeded our
-              expectations."
+              expectations.
             </p>
             <footer className="text-sm">Michael Chen, CTO at InnovaTech</footer>
           </blockquote>
@@ -35,6 +36,7 @@ export default function LoginPage() {
             </p>
           </div>
           <LoginForm />
+          <LoginOptions />
           <p className="px-8 text-center text-sm text-muted-foreground">
             <Link
               href="/auth/register"

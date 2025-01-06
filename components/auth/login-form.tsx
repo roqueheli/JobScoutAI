@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -31,6 +32,32 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
+
+  // const handleGoogleSignIn = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const result = await signIn("google", {
+  //       callbackUrl: "/auth/role-selection",
+  //       redirect: false,
+  //     });
+
+  //     if (result?.error) {
+  //       throw new Error(result.error);
+  //     }
+
+  //     if (result?.url) {
+  //       router.push(result.url);
+  //     }
+  //   } catch (error) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Error",
+  //       description: "Failed to sign in with Google",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -126,16 +153,20 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-2 gap-4">
         <Button variant="outline" disabled={isLoading}>
           <Icons.gitHub className="mr-2 h-4 w-4" />
           GitHub
         </Button>
-        <Button variant="outline" disabled={isLoading}>
+        <Button
+          variant="outline"
+          disabled={isLoading}
+          onClick={handleGoogleSignIn}
+        >
           <Icons.google className="mr-2 h-4 w-4" />
           Google
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

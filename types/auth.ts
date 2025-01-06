@@ -8,5 +8,6 @@ export type RegisterData = {
     last_name: string;
     role: UserRole;
     phone?: string;
-    company_id?: number | null; // Cambiado a number ya que en la BD es INT  
+    company_id?: number | null; // Cambiado a number ya que en la BD es INT
+    isGoogle?: boolean; // Cambiado a boolean ya que en la BD es BOOLEAN
 };

@@ -1,15 +1,16 @@
 "use client";
 
+import LoginOptions from "@/app/auth/options/page";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { AuthContext } from "@/context/auth/AuthContext";
 import { RegisterData } from "@/types/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
@@ -39,6 +41,7 @@ const registerSchema = z
     confirmPassword: z.string(),
     company_id: z.string().optional(), // Hacer company_id opcional
     phone: z.string().optional(),
+    isGoogle: z.boolean().default(false), // Campo para indicar si el registro es con Google
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -66,11 +69,11 @@ export function RegisterForm() {
       confirmPassword: "",
       company_id: "",
       phone: "",
+      isGoogle: false, // Inicializar isGoogle como false
     },
   });
- 
+
   async function onSubmit(data: RegisterValues) {
-    
     setIsLoading(true);
     try {
       const registrationData: RegisterData = {
@@ -84,6 +87,7 @@ export function RegisterForm() {
           accountType === "employer" && data.company_id
             ? parseInt(data.company_id)
             : undefined, // Cambiar a undefined si no se proporciona
+        isGoogle: data.isGoogle, // Incluir el campo isGoogle
       };
 
       // Validar los datos transformados
@@ -110,6 +114,35 @@ export function RegisterForm() {
       setIsLoading(false);
     }
   }
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signIn("google", {
+        callbackUrl: "/", // Redirigir al inicio después del registro
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
+      toast({
+        title: "Success",
+        description: "Successfully signed in with Google",
+      });
+
+      router.push("/"); // Redirigir al inicio
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign in with Google",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -261,18 +294,7 @@ export function RegisterForm() {
               </span>
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" disabled={isLoading}>
-              <Icons.gitHub className="mr-2 h-4 w-4" />
-              GitHub
-            </Button>
-            <Button variant="outline" disabled={isLoading}>
-              <Icons.google className="mr-2 h-4 w-4" />
-              Google
-            </Button>
-          </div>
-
+          <LoginOptions />
           <p className="px-8 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
